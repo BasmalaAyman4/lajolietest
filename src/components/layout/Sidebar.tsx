@@ -115,7 +115,10 @@ const NAV_ITEMS: NavItem[] = [
     id: "reals",
     name: "Reals Details",
     icon: <FaImage />,
-    path: "/reals",
+   subItems: [
+      { name: "Reel Category", path: "/reel-categories" },
+      { name: "Reels", path: "/reels" },
+    ],
   },
 
   {
@@ -186,10 +189,12 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { name: "FAQ Types", path: "/faqType" },
       { name: "FAQ Details", path: "/faq" },
-      { name: "Terms & Conditions Types", path: "/termsAndConditionsType" },
+      { name: "Terms Types", path: "/termsAndConditionsType" },
       { name: "Terms & Conditions", path: "/termsAndConditions" },
       { name: "Report Issue", path: "/report-issues" },
       { name: "Contact Us", path: "/contact-us" },
+      { name: "How To Use", path: "/how-to-use" },
+      { name: "Default Image", path: "/default-image" },
     ],
   },
 
@@ -209,8 +214,37 @@ const AppSidebar: React.FC = () => {
 
   const isOpen = isExpanded || isHovered || isMobileOpen;
 
-  const [manualOpenId, setManualOpenId] = useState<string | null>(null);
+const [manualOpenId, setManualOpenId] = useState<string | null>(null)
+const [manuallyClosed, setManuallyClosed] = useState<string | null>(null)
+  const isSubActive = useCallback(
+    (path: string) =>
+      location.pathname === path ||
+      location.pathname.startsWith(path + "/"),
+    [location.pathname]
+  );
 
+ const activeParentId = useMemo(() => {
+    return (
+      NAV_ITEMS.find((item) =>
+        item.subItems?.some((sub) => isSubActive(sub.path))
+      )?.id ?? null
+    );
+  }, [location.pathname, isSubActive]);
+
+const openMenuId = manuallyClosed === activeParentId
+  ? manualOpenId  // user explicitly closed the active parent → respect it
+  : (manualOpenId ?? activeParentId)
+
+const toggleSubmenu = (id: string) => {
+  const isCurrentlyOpen = openMenuId === id
+  if (isCurrentlyOpen) {
+    setManualOpenId(null)
+    setManuallyClosed(id)  // remember user closed this
+  } else {
+    setManualOpenId(id)
+    setManuallyClosed(null)
+  }
+}
   const [subMenuHeights, setSubMenuHeights] = useState<
     Record<string, number>
   >({});
@@ -222,26 +256,9 @@ const AppSidebar: React.FC = () => {
     [location.pathname]
   );
 
-  const isSubActive = useCallback(
-    (path: string) =>
-      location.pathname === path ||
-      location.pathname.startsWith(path + "/"),
-    [location.pathname]
-  );
 
-  const activeParentId = useMemo(() => {
-    return (
-      NAV_ITEMS.find((item) =>
-        item.subItems?.some((sub) => isSubActive(sub.path))
-      )?.id ?? null
-    );
-  }, [location.pathname, isSubActive]);
-
-  const openMenuId = manualOpenId ?? activeParentId;
-
-  const toggleSubmenu = (id: string) => {
-    setManualOpenId((prev) => (prev === id ? null : id));
-  };
+ 
+ 
 
   useEffect(() => {
     NAV_ITEMS.forEach((item) => {

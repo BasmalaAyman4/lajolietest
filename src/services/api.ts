@@ -93,6 +93,10 @@ export const api = createApi({
     'ServiceCode',
     'SpecialistJob',
     'SalonServiceDiscount',
+    'HowToUse',
+    'DefaultImage',
+    'ReelCategory',
+    'Reel',
     
   ],
   endpoints: () => ({}),

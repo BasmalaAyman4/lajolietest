@@ -3,7 +3,7 @@
 //  Handles Create and Edit in one modal.
 //  Pass `product` to enter edit mode; omit for create mode.
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -36,7 +36,7 @@ const schema = z.object({
   brandId: z.coerce.number().min(1, 'Brand is required'),
   categoryId: z.coerce.number().min(1, 'Category is required'),
   subCategoryId: z.array(z.number()).min(1, 'At least one sub-category is required'),
-  productTypeId: z.coerce.number().min(1, 'Product type is required'),
+  productTypeIds: z.array(z.number()).min(1, 'At least one product type is required'), // ← changed
   howToUse: z.string().default(''),
   description: z.string().default(''),
   ingredients: z.string().default(''),
@@ -92,18 +92,30 @@ export default function ProductFormModal({
   const { data: goals = [] } = useGetGoalDropdownQuery()
 
   const [watchedCategoryId, setWatchedCategoryId] = useState(0)
-  const [watchedProductTypeId, setWatchedProductTypeId] = useState(0)
+// Initialize from product so the query fires before reset()
+const [watchedProductTypeIds, setWatchedProductTypeIds] = useState<number[]>(
+  () => product?.productTypeIds ?? []
+)
   const [skinHairMode, setSkinHairMode] = useState<SkinHairMode>('none')
 
-  const { data: productTypeDetails = [] } = useGetProductTypeDetailDropdownQuery(
-    watchedProductTypeId,
-    { skip: watchedProductTypeId === 0 },
+const { data: rawProductTypeDetails = [], isLoading: isLoadingDetails } =
+  useGetProductTypeDetailDropdownQuery(
+    watchedProductTypeIds,
+    { skip: watchedProductTypeIds.length === 0 },
   )
+  // Flatten the grouped response → flat list for MultiSelect
+const productTypeDetails = useMemo(
+  () => rawProductTypeDetails.flatMap((group) =>
+    group.details.map((d) => ({ id: d.id, name: `${group.name} — ${d.name}` }))
+  ),
+  [rawProductTypeDetails],
+)
 
   const filteredSubCategories = useMemo(
     () => allSubCategories.filter((s) => s.categoryId === watchedCategoryId),
     [allSubCategories, watchedCategoryId],
   )
+console.log('raw:', rawProductTypeDetails)
 
   const {
     register, handleSubmit, reset, control, setValue, watch,
@@ -112,7 +124,7 @@ export default function ProductFormModal({
     resolver: zodResolver(schema),
     defaultValues: {
       name: '', enName: '', brandId: 0, categoryId: 0,
-      subCategoryId: [], productTypeId: 0,
+      subCategoryId: [], productTypeIds: [],
       howToUse: '', description: '', ingredients: '',
       isVegan: false, forChildren: false, canTry: false,
       isDisappearColor: false, isDisappearSize: false,
@@ -123,34 +135,53 @@ export default function ProductFormModal({
   })
 
   const categoryIdValue = watch('categoryId')
-  const productTypeIdValue = watch('productTypeId')
+  const productTypeIdValue = watch('productTypeIds')
 
   useEffect(() => {
     setWatchedCategoryId(Number(categoryIdValue) || 0)
     setValue('subCategoryId', [])
   }, [categoryIdValue, setValue])
 
+const isResetting = useRef(false) // ← add this ref
+
   useEffect(() => {
-    setWatchedProductTypeId(Number(productTypeIdValue) || 0)
-    setValue('productTypeDetailIds', [])
+    setWatchedProductTypeIds(productTypeIdValue || [])
+    // ✅ Only clear details if the user changed types manually, not during reset
+    if (!isResetting.current) {
+      setValue('productTypeDetailIds', [])
+    }
   }, [productTypeIdValue, setValue])
+useEffect(() => {
+  if (!isLoadingDetails && productTypeDetails.length > 0 && product?.productTypeDetailIds?.length) {
+    setValue('productTypeDetailIds', product.productTypeDetailIds)
+  }
+}, [isLoadingDetails, productTypeDetails.length])
+useEffect(() => {
+  if ( allSubCategories && product?.subCategoryIds?.length) {
+    setValue('subCategoryId', product.subCategoryIds)
+  }
+}, [allSubCategories.length])
 
   useEffect(() => {
     if (!open) return
     if (product) {
+      isResetting.current = true  // ← block the clear
+
       const hairMode: SkinHairMode =
         (product.hairTypes?.length ?? 0) > 0 ? 'hair' :
         (product.skinTypes?.length ?? 0) > 0 ? 'skin' : 'none'
       setSkinHairMode(hairMode)
       setWatchedCategoryId(product.categoryId)
-      setWatchedProductTypeId(product.productTypeId)
+
+      const ptIds: number[] = product.productTypeIds ?? []
+      setWatchedProductTypeIds(ptIds)
       reset({
         name: product.name,
         enName: product.enName,
         brandId: product.brandId,
         categoryId: product.categoryId,
-        subCategoryId: (product.subCategories ?? []).map((s) => s.id),
-        productTypeId: product.productTypeId,
+        subCategoryId: product.subCategoryIds ?? [],
+        productTypeIds: ptIds,
         howToUse: product.howToUse ?? '',
         description: product.description ?? '',
         ingredients: product.ingredients ?? '',
@@ -161,21 +192,26 @@ export default function ProductFormModal({
         isDisappearSize: product.isDisappearSize,
         hairTypes: (product.hairTypes ?? []).map((h) => h.id),
         skinTypes: (product.skinTypes ?? []).map((s) => s.id),
-        productTypeDetailIds: [],
+        productTypeDetailIds: product.productTypeDetailIds ?? [], // ✅ from backend directly
         isSensitiveSkin: product.isSensitiveSkin,
         isActive: product.isActive,
-        beautyCategoryIds: product.concernIds ?? [],
         concernIds: product.concernIds ?? [],
         interestIds: product.interestIds ?? [],
         goalIds: product.goalIds ?? [],
+        beautyCategoryIds:product.beautyCategoryIds??[],
       })
+
+
+      // ← unblock after reset completes (next tick)
+      setTimeout(() => { isResetting.current = false }, 0)
+
     } else {
       setSkinHairMode('none')
       setWatchedCategoryId(0)
-      setWatchedProductTypeId(0)
+      setWatchedProductTypeIds([])
       reset({
         name: '', enName: '', brandId: 0, categoryId: 0,
-        subCategoryId: [], productTypeId: 0,
+        subCategoryId: [], productTypeIds: [],
         howToUse: '', description: '', ingredients: '',
         isVegan: false, forChildren: false, canTry: false,
         isDisappearColor: false, isDisappearSize: false,
@@ -218,6 +254,7 @@ export default function ProductFormModal({
       </span>
     </div>
   )
+console.log('details options:', toOpts(allSubCategories))
 
   return (
     <Modal
@@ -288,7 +325,7 @@ export default function ProductFormModal({
           <Controller control={control} name="subCategoryId" render={({ field }) => (
             <MultiSelect
               label="Sub Category"
-              options={watchedCategoryId ? toOpts(filteredSubCategories) : []}
+              options={toOpts(allSubCategories)}
               value={field.value}
               onChange={field.onChange}
               placeholder={watchedCategoryId ? 'Select sub-categories' : 'Select category first'}
@@ -299,34 +336,35 @@ export default function ProductFormModal({
           )} />
         </div>
 
-        <SectionHeading title="Product Type" />
+       <SectionHeading title="Product Type" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-           <Controller
-  name="productTypeId"
-  control={control}
-  render={({ field }) => (
-    <Select  label="Product Type" 
-    options={toOpts(productTypes)} 
-    placeholder="Select product type" 
-    error={errors.productTypeId?.message} 
-    required 
-    value={field.value}
-    onChange={(e) => field.onChange(Number(e.target.value))}
-    onBlur={field.onBlur}
-    />
-
-  )}
-/>
-          <Controller control={control} name="productTypeDetailIds" render={({ field }) => (
+          <Controller control={control} name="productTypeIds" render={({ field }) => (
             <MultiSelect
-              label="Product Type Details"
-              options={watchedProductTypeId ? toOpts(productTypeDetails) : []}
+              label="Product Type"
+              options={toOpts(productTypes)}
               value={field.value}
               onChange={field.onChange}
-              placeholder={watchedProductTypeId ? 'Select details' : 'Select product type first'}
-              disabled={!watchedProductTypeId}
+              placeholder="Select product types"
+              error={errors.productTypeIds?.message}
+              required
             />
           )} />
+         <Controller control={control} name="productTypeDetailIds" render={({ field }) => (
+  <MultiSelect
+    label="Product Type Details"
+    options={toOpts(productTypeDetails)}
+    value={field.value}
+    onChange={field.onChange}
+    placeholder={
+      isLoadingDetails
+        ? 'Loading…'
+        : watchedProductTypeIds.length
+          ? 'Select details'
+          : 'Select product type first'
+    }
+    disabled={!watchedProductTypeIds.length || isLoadingDetails}
+  />
+)} />
         </div>
 
         <SectionHeading title="Hair / Skin" />

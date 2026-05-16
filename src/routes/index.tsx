@@ -42,6 +42,10 @@ import ServiceCodePage from '@/features/DepartmentSalon/serviceCode/pages/Servic
 import SpecialistJobPage from '@/features/DepartmentSalon/specialistJob/pages/SpecialistJobPage'
 import SalonServiceDiscountPage from '@/features/DepartmentSalon/discount/pages/SalonServiceDiscountPage'
 import DiscountDetailsPage from '@/features/DepartmentSalon/discount/pages/DiscountDetailsPage'
+import HowToUse from '@/features/DepartmentSupport/howToUse/pages/HowToUsePage'
+import DefaultImagePage from '@/features/DepartmentSupport/defaultImage/pages/DefaultImagePage'
+import ReelCategoryPage from '@/features/DepartmentReel/reelCategory/pages/ReelCategoryPage'
+import ReelPage from '@/features/DepartmentReel/reel/pages/ReelPage'
 // ── Guards ─────────────────────────────────────────────────────────────────────
 
 function PrivateRoute() {
@@ -110,7 +114,11 @@ const router = createBrowserRouter([
              {path:"service-code", element: <ServiceCodePage />},
              {path:"specialistJob", element: <SpecialistJobPage />},
              {path:"salon-discounts", element: <SalonServiceDiscountPage />} ,
-             {path:"salon-discounts/:id", element: <DiscountDetailsPage />} 
+             {path:"salon-discounts/:id", element: <DiscountDetailsPage />} ,
+             {path:"how-to-use", element: <HowToUse />} ,
+             {path:"default-image", element: <DefaultImagePage />} ,
+              {path:"reel-categories", element: <ReelCategoryPage />} ,
+              {path:"reels", element: <ReelPage />} ,
              
              
         ],

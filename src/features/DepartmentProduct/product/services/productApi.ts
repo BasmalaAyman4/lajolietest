@@ -181,11 +181,14 @@ export const productApi = api.injectEndpoints({
       providesTags: [{ type: 'Dropdown', id: 'PRODUCT_TYPE' }],
     }),
 
-    getProductTypeDetailDropdown: builder.query<ProductTypeDetailDropdownItem[], number>({
-      query: (productTypeId) =>
-        `/api/admin/BasicData/getProductTypeDetailDropdown?productTypeId=${productTypeId}`,
-      providesTags: (_r, _e, id) => [{ type: 'Dropdown', id: `PTD_${id}` }],
-    }),
+   getProductTypeDetailDropdown: builder.query<ProductTypeDetailDropdownItem[], number[]>({
+  query: (productTypeIds) => {
+    // Build ?productTypeIds=1&productTypeIds=2
+    const params = productTypeIds.map((id) => `productTypeIds=${id}`).join('&')
+    return `/api/admin/BasicData/getProductTypeDetailDropdown?${params}`
+  },
+  providesTags: (_r, _e, ids) => [{ type: 'Dropdown', id: `PTD_${ids.join('_')}` }],
+}),
 
     getBrandDropdown: builder.query<DropdownItem[], void>({
       query: () => '/api/admin/BasicData/getBrandDropdown',
@@ -225,6 +228,7 @@ export const productApi = api.injectEndpoints({
     getSizeDropdown: builder.query<DropdownItem[], void>({
       query: () => '/api/admin/BasicData/getSizeDropdown',
       providesTags: [{ type: 'Dropdown', id: 'SIZE' }],
+      keepUnusedDataFor: 0,
     }),
 
     getHeadColorDropdown: builder.query<DropdownItem[], void>({

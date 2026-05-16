@@ -127,9 +127,8 @@ export default function ProductDetailsPage() {
               {[
                 ['Arabic Name', product.name],
                 ['English Name', product.enName],
-                ['Brand ID', product.brandId],
-                ['Category ID', product.categoryId],
-                ['Product Type ID', product.productTypeId],
+                ['Brand', product.brandName],
+                ['Category Name', product.categoryName],
                 ['Vegan', product.isVegan ? 'Yes' : 'No'],
                 ['For Children', product.forChildren ? 'Yes' : 'No'],
                 ['Can Try', product.canTry ? 'Yes' : 'No'],

@@ -91,7 +91,6 @@ export interface ProductFull {
   brandId: number
   categoryId: number
   subCategoryId: number | null
-  productTypeId: number
   howToUse: string
   description: string
   ingredients: string
@@ -116,6 +115,12 @@ export interface ProductFull {
   concernIds: number[]
   interestIds: number[]
   goalIds: number[]
+  productTypeDetailIds: number[]
+  productTypeIds: number[]
+  beautyCategoryIds: number[]
+  brandName: string
+  categoryName: string
+  subCategoryIds: number[]
 }
 
 // ── Dropdown types ──────────────────────────────────────────────────────────
@@ -134,7 +139,7 @@ export interface SubCategoryDropdownItem {
 export interface ProductTypeDetailDropdownItem {
   id: number
   name: string
-  productTypeId: number
+  details: { id: number; name: string }[]
 }
 
 // ── Create / Update ──────────────────────────────────────────────────────────
@@ -145,7 +150,7 @@ export interface CreateProductRequest {
   brandId: number
   categoryId: number
   subCategoryId: number[]
-  productTypeId: number
+  productTypeIds: number[] 
   howToUse: string
   description: string
   ingredients: string

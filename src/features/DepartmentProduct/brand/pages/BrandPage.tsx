@@ -139,6 +139,7 @@ export default function BrandPage() {
       <DataTable<Brand>
         columns={columns}
         data={brands}
+        tableKey="brand"
         rowKey="id"
         loading={isLoading}
         searchKeys={['nameEn', 'nameAr', 'description']}
