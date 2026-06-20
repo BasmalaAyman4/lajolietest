@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { Store } from '../types'
 import { useGetStoresQuery, useDeleteStoreMutation } from '../services/storeApi'
 import StoreFormModal from '../components/StoreFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function StorePage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function StorePage() {
     try {
       await deleteStore(deleteModal.id).unwrap()
       toast.success('Store deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

@@ -23,6 +23,7 @@ import {
   useGetUserTypeDropdownQuery,
 } from '../services/salonUserApi'
 import UserFormModal from '../components/UserFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function SalonUserPage() {
   const { t } = useTranslation()
@@ -53,9 +54,9 @@ export default function SalonUserPage() {
     try {
       await deleteUser(deleteModal.id).unwrap()
       toast.success(t('user.deleteSuccess', 'User deleted'))
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

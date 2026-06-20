@@ -1,22 +1,26 @@
 // ─── ReelPage ─────────────────────────────────────────────────────────────────
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { HiPlus, HiTrash, HiFilm, HiVideoCamera, HiPlay } from 'react-icons/hi'
+import { HiPlus, HiTrash, HiFilm, HiVideoCamera, HiPlay, HiCheckCircle } from 'react-icons/hi'
 import { Button, ConfirmModal, DataTable, type Column } from '@/components/shared'
 import type { Reel } from '../types'
-import { useGetReelsQuery, useDeleteReelMutation,useLazyGetReelByIdQuery } from '../services/reelApi'
+import { useGetReelsQuery, useDeleteReelMutation, useLazyGetReelByIdQuery, useApproveReelMutation } from '../services/reelApi'
 import ReelFormModal from '../components/ReelFormModal'
 import ReelVideoModal from '../components/ReelVideoModal'
 import ReelPreviewModal from '../components/ReelPreviewModal'
+import { getApiError } from '@/services/apiHelpers'
+import { useStatusFilter } from '@/hooks/useStatusFilter'
+import ApprovalFilter from '@/components/shared/ApprovalFilter'
 
 export default function ReelPage() {
   const { t } = useTranslation()
 
   const { data: reels = [], isLoading, isError } = useGetReelsQuery()
   const [deleteReel, { isLoading: isDeleting }] = useDeleteReelMutation()
-const [fetchReelById, { isFetching: isFetchingDetail }] = useLazyGetReelByIdQuery()
+  const [approveReel, { isLoading: isApproving }] = useApproveReelMutation()
+  const [fetchReelById, { isFetching: isFetchingDetail }] = useLazyGetReelByIdQuery()
 
   const [formModal, setFormModal] = useState(false)
   const [videoModal, setVideoModal] = useState<{
@@ -50,29 +54,40 @@ const [previewModal, setPreviewModal] = useState<{
     try {
       await deleteReel(deleteModal.id).unwrap()
       toast.success('Reel deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setDeleteModal({ open: false, id: null })
     }
   }
-const openPreview = async (r: Reel) => {
-  try {
-    const detail = await fetchReelById(r.id).unwrap()
-    if (!detail.videoUrl) {
-      toast.error(t('reel.noVideo', 'No video uploaded yet for this reel.'))
-      return
-    }
-    setPreviewModal({
-      open: true,
-      videoUrl: detail.videoUrl,
-      reelTitle: detail.title,
-      thumbnailUrl: detail.imageThumbnailUrl,
-    })
-  } catch {
-    toast.error(t('common.error'))
+
+  const handleApprove = async (id: number) => {
+    try {
+      await approveReel(id).unwrap()
+      toast.success('Reel approved successfully')
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
-}
+
+  const openPreview = async (r: Reel) => {
+    try {
+      const detail = await fetchReelById(r.id).unwrap()
+      if (!detail.videoUrl) {
+        toast.error(t('reel.noVideo', 'No video uploaded yet for this reel.'))
+        return
+      }
+      setPreviewModal({
+        open: true,
+        videoUrl: detail.videoUrl,
+        reelTitle: detail.title,
+        thumbnailUrl: detail.imageThumbnailUrl,
+      })
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
+  }
+
   const columns: Column<Reel>[] = [
     {
       key: 'title',
@@ -105,6 +120,15 @@ const openPreview = async (r: Reel) => {
       ),
     },
     {
+      key: 'salonName',
+      label: t('reel.salonName', 'Salon Name'),
+      render: (row) => (
+        <span className="text-sm text-[var(--text-muted)] truncate max-w-xs block">
+          {row.salonName}
+        </span>
+      ),
+    },
+    {
       key: 'createdDate',
       label: 'Date',
       render: (row) => (
@@ -116,36 +140,57 @@ const openPreview = async (r: Reel) => {
       label: 'Status',
       align: 'center',
       width: '100px',
-      render: (row) => (
-        <span
-          className={[
-            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-            row.isApproved
-              ? 'bg-green-50 text-green-700'
-              : 'bg-[var(--bg-hover)] text-[var(--text-muted)]',
-          ].join(' ')}
-        >
-          {row.isApproved ? 'Approved' : 'Pending'}
-        </span>
-      ),
+      render: (row) => {
+        if (row.isApproved) {
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+              Approved
+            </span>
+          )
+        }
+        return (
+          <button
+            onClick={() => handleApprove(row.id)}
+            disabled={isApproving}
+            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+              bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200
+              transition-all duration-155 active:scale-95 disabled:opacity-50 cursor-pointer"
+            title="Click to approve"
+          >
+            Pending
+          </button>
+        )
+      },
     },
     {
       key: 'actions',
       label: '',
       align: 'right',
-      width: '100px',
+      width: '120px',
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
+          {!row.isApproved && (
             <button
-                      type="button"
-                      title={t('reel.watchVideo', 'Watch Video')}
-                      onClick={() => openPreview(row)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center
-                        text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]
-                        transition-colors"
-                    >
-                      <HiPlay size={15} />
-                    </button>
+              type="button"
+              title="Approve Reel"
+              disabled={isApproving}
+              onClick={() => handleApprove(row.id)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center
+                text-[var(--text-muted)] hover:text-green-600 hover:bg-green-50 transition-colors"
+            >
+              <HiCheckCircle size={15} />
+            </button>
+          )}
+          <button
+            type="button"
+            title={t('reel.watchVideo', 'Watch Video')}
+            onClick={() => openPreview(row)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center
+              text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]
+              transition-colors"
+          >
+            <HiPlay size={15} />
+          </button>
           <button
             type="button"
             title="Upload Video"
@@ -170,7 +215,14 @@ const openPreview = async (r: Reel) => {
       ),
     },
   ]
+ const approvalFilter = useStatusFilter()   // '' | 'true' | 'false'
 
+  // Client-side filter — memoized so it only reruns when data or filter changes
+  const filteredReels = useMemo(() => {
+    if (approvalFilter.value === '') return reels
+    const target = approvalFilter.value === 'true'
+    return reels.filter((r) => r.isApproved === target)
+  }, [reels, approvalFilter.value])
   if (isError) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -202,6 +254,12 @@ const openPreview = async (r: Reel) => {
         searchKeys={['title', 'description', 'uploadedBy']}
         searchPlaceholder="Search by title, description or uploader…"
         emptyMessage="No reels found. Add your first one!"
+        toolbar={
+          <ApprovalFilter
+            value={approvalFilter.value}
+            onChange={approvalFilter.setValue}
+          />
+        }
       />
 
       {/* Create modal */}

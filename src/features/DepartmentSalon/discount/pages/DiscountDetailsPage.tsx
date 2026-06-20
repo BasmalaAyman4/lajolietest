@@ -16,6 +16,7 @@ import {
   useStopDiscountMutation,
 } from '../services/salonServiceDiscountApi'
 import DiscountDetailsPanel from '../components/DiscountDetailsPanel'
+import { getApiError } from '@/services/apiHelpers'
 
 function formatDate(iso: string) {
   try {
@@ -44,9 +45,9 @@ export default function DiscountDetailsPage() {
     try {
       await approveDiscount(discountId).unwrap()
       toast.success('Discount approved')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setApproveModal(false)
     }
   }
@@ -55,9 +56,9 @@ export default function DiscountDetailsPage() {
     try {
       await stopDiscount(discountId).unwrap()
       toast.success('Discount stopped')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setStopModal(false)
     }
   }

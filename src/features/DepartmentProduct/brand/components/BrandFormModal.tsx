@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button } from '@/components/shared'
 import type { Brand } from '../types'
 import { useCreateBrandMutation, useUpdateBrandMutation } from '../services/brandApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -70,9 +71,9 @@ export default function BrandFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

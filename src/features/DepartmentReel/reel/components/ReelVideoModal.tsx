@@ -8,6 +8,7 @@ import { HiUpload, HiX, HiFilm } from 'react-icons/hi'
 import { cn } from '@/lib/cn'
 import { Modal, Button } from '@/components/shared'
 import { useUploadReelVideoMutation } from '../services/reelApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const MAX_SIZE = 100 * 1024 * 1024 // 100 MB
 
@@ -64,9 +65,9 @@ export default function ReelVideoModal({
       await uploadVideo({ reelId, file: preview.file }).unwrap()
       toast.success('Video uploaded successfully')
       handleClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   return (

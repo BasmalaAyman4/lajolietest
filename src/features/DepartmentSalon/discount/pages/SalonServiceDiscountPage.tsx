@@ -19,6 +19,7 @@ import {
   useStopDiscountMutation,
 } from '../services/salonServiceDiscountApi'
 import DiscountFormModal from '../components/DiscountFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Status badge helpers ──────────────────────────────────────────────────────
 function DiscountStatusBadge({ row }: { row: SalonServiceDiscount }) {
@@ -67,9 +68,9 @@ export default function SalonServiceDiscountPage({ salonId = DEFAULT_SALON_ID }:
     try {
       await approveDiscount(approveModal.id).unwrap()
       toast.success('Discount approved')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setApproveModal({ open: false, id: null })
     }
   }
@@ -79,9 +80,9 @@ export default function SalonServiceDiscountPage({ salonId = DEFAULT_SALON_ID }:
     try {
       await stopDiscount(stopModal.id).unwrap()
       toast.success('Discount stopped')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setStopModal({ open: false, id: null })
     }
   }
@@ -191,6 +192,7 @@ export default function SalonServiceDiscountPage({ salonId = DEFAULT_SALON_ID }:
 
       <DataTable<SalonServiceDiscount>
         columns={columns}
+        tableKey="salonServiceDiscounts"
         data={discounts}
         rowKey="id"
         loading={isLoading}

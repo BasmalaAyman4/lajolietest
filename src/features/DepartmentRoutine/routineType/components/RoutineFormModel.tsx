@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button, TimePicker } from '@/components/shared'
 import { useCreateRoutineTypeMutation, useUpdateRoutineTypeMutation } from '../services/routineApi'
 import type { RoutineType } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -88,9 +89,9 @@ export default function RoutineFormModel({ open, onClose, routine }: RoutineForm
       }
       toast.success(t('common.success'))
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   return (

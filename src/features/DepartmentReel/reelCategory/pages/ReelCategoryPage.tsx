@@ -9,6 +9,7 @@ import type { ReelCategory } from '../types'
 import { useGetReelCategoriesQuery, useDeleteReelCategoryMutation } from '../services/reelCategoryApi'
 import ReelCategoryFormModal from '../components/ReelCategoryFormModal'
 import ReelCategoryImageModal from '../components/ReelCategoryImageModal'
+import { getApiError } from '@/services/apiHelpers'
 export default function ReelCategoryPage() {
   const { t } = useTranslation()
   const { data: reelCategory = [], isLoading, isError } = useGetReelCategoriesQuery()
@@ -31,9 +32,9 @@ export default function ReelCategoryPage() {
     try {
       await deleteReelCategory(deleteModal.id).unwrap()
       toast.success('Reel Category deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

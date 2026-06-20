@@ -32,6 +32,7 @@ interface TableProps<T> {
   onRowClick?: (row: T) => void
   columnFilters?: Record<string, string | number | ''>
   onColumnFilterChange?: (key: string, value: string | number | '') => void
+  getRowHref?: (row: T) => string 
 }
 
 function getNestedValue(row: unknown, key: string): unknown {
@@ -111,6 +112,7 @@ export default function Table<T>({
   onRowClick,
   columnFilters = {},
   onColumnFilterChange,
+  getRowHref
 }: TableProps<T>) {
   const { t, i18n } = useTranslation()
   const isRTL = i18n.language === 'ar'
@@ -255,14 +257,39 @@ export default function Table<T>({
           {!loading &&
             data.map((row, rowIndex) => (
               <tr
-                key={String(row[rowKey])}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                className={cn(
-                  'border-b border-[var(--border)] transition-colors duration-100',
-                  'hover:bg-[var(--bg-hover)]',
-                  onRowClick && 'cursor-pointer',
-                  rowIndex % 2 === 0 ? 'bg-[var(--bg-card)]' : 'bg-[var(--bg)]',
-                )}
+              key={String(row[rowKey])}
+              onClick={
+                onRowClick || getRowHref
+                  ? (e) => {
+                      if (getRowHref) {
+                        const href = getRowHref(row)
+                        if (e.ctrlKey || e.metaKey) {
+                          window.open(href, '_blank')
+                        } else {
+                          onRowClick?.(row)
+                        }
+                      } else {
+                        onRowClick?.(row)
+                      }
+                    }
+                  : undefined
+              }
+              onAuxClick={
+                getRowHref
+                  ? (e) => {
+                      if (e.button === 1) {
+                        e.preventDefault()
+                        window.open(getRowHref(row), '_blank')
+                      }
+                    }
+                  : undefined
+              }
+              className={cn(
+                'border-b border-[var(--border)] transition-colors duration-100',
+                'hover:bg-[var(--bg-hover)]',
+                (onRowClick || getRowHref) && 'cursor-pointer',
+                rowIndex % 2 === 0 ? 'bg-[var(--bg-card)]' : 'bg-[var(--bg)]',
+              )}
               >
                 {columns.map((col) => (
                   <td

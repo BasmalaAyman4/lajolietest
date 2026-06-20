@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { RoutineType } from '../types'
 import { useGetRoutineTypesQuery, useDeleteRoutineTypeMutation } from '../services/routineApi'
 import RoutineFormModel from '../components/RoutineFormModel'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function RoutineTypePage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function RoutineTypePage() {
     try {
       await deleteRoutineType(deleteModal.id).unwrap()
       toast.success('Routine Type deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

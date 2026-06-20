@@ -18,6 +18,7 @@ import {
 } from '../services/subCategoryApi'
 import SubCategoryFormModal from '../components/SubCategoryFormModal'
 import SubCategoryImageModal from '../components/SubCategoryImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function SubCategoryPage() {
@@ -64,9 +65,9 @@ export default function SubCategoryPage() {
     try {
       await deleteSubCategory(deleteModal.id).unwrap()
       toast.success(t('specialist.deleteSuccess', 'Specialist deleted'))
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

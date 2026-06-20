@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { Report } from '../types'
 import { useGetReportsQuery, useDeleteReportMutation } from '../services/reportApi'
 import ReportFormModal from '../components/ReportFormModel'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ReportPage() {
   const { t } = useTranslation()
@@ -23,9 +24,9 @@ export default function ReportPage() {
     try {
       await deleteReport(deleteModal.id).unwrap()
       toast.success('Report deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }finally {
       setDeleteModal({ open: false, id: null })
     }
   }

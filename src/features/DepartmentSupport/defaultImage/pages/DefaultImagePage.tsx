@@ -13,6 +13,7 @@ import {
 } from '../services/defaultImageApi'
 import DefaultImageFormModal from '../components/DefaultImageFormModal'
 import DefaultImageModal from '../components/DefaultImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function DefaultImagePage() {
   const { t } = useTranslation()
@@ -54,9 +55,9 @@ export default function DefaultImagePage() {
     try {
       await deleteDefaultImage(deleteModal.id).unwrap()
       toast.success('DefaultImage deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

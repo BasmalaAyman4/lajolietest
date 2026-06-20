@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button, Toggle } from '@/components/shared'
 import type { ReelCategory } from '../types'
 import { useCreateReelCategoryMutation, useUpdateReelCategoryMutation } from '../services/reelCategoryApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -56,9 +57,9 @@ export default function ReelCategoryFormModal({ open, onClose, reelCategory }: S
       }
       toast.success(t('common.success'))
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   return (

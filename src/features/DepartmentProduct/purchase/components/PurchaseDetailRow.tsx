@@ -21,9 +21,10 @@ interface PurchaseDetailRowProps {
   value: ProductDetailRow
   onChange: (value: ProductDetailRow) => void
   onRemove: () => void
+  hideRemove?: boolean 
 }
 
-export default function PurchaseDetailRow({ index, value, onChange, onRemove }: PurchaseDetailRowProps) {
+export default function PurchaseDetailRow({ index, value, onChange, onRemove,hideRemove  }: PurchaseDetailRowProps) {
   const { data: products = [] } = useGetProductDropdownQuery()
   const [fetchDetails, { isFetching }] = useLazyGetProductDetailsQuery()
   const [variantOptions, setVariantOptions] = useState<ProductDetailOption[]>([])
@@ -123,17 +124,19 @@ export default function PurchaseDetailRow({ index, value, onChange, onRemove }: 
      
 
       {/* Remove */}
-      <div className={`col-span-2 sm:col-span-1 flex justify-end ${isFirst ? 'pt-5' : ''}`}>
-        <button
-          type="button"
-          onClick={onRemove}
-          title="Remove row"
-          className="w-8 h-8 rounded-lg flex items-center justify-center
-            text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-red-50 transition-colors"
-        >
-          <HiTrash size={15} />
-        </button>
-      </div>
+{!hideRemove && (
+  <div className={`col-span-2 sm:col-span-1 flex justify-end ${isFirst ? 'pt-5' : ''}`}>
+    <button
+      type="button"
+      onClick={onRemove}
+      title="Remove row"
+      className="w-8 h-8 rounded-lg flex items-center justify-center
+        text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-red-50 transition-colors"
+    >
+      <HiTrash size={15} />
+    </button>
+  </div>
+)}
 
     </div>
   )

@@ -14,6 +14,7 @@ import { Modal, Button } from '@/components/shared'
 import { useCreatePurchaseMutation } from '../services/purchaseApi'
 import PurchaseHeaderFields from './PurchaseHeaderFields'
 import PurchaseDetailRow, { type ProductDetailRow } from './PurchaseDetailRow'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -82,9 +83,9 @@ export default function ProductPurchaseModal({ open, onClose, onCreated }: Produ
       toast.success(t('common.success'))
       handleClose()
       onCreated?.(newId)
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   // Live total
@@ -116,13 +117,7 @@ export default function ProductPurchaseModal({ open, onClose, onCreated }: Produ
 
         <div className="flex items-center justify-between mt-1">
           <SectionHeading title="Products" />
-          <button
-            type="button"
-            onClick={() => setRows((prev) => [...prev, EMPTY_ROW()])}
-            className="flex items-center gap-1.5 text-xs font-medium text-[var(--accent)] hover:opacity-80 transition-opacity"
-          >
-            <HiPlus size={13} /> Add Row
-          </button>
+         
         </div>
 
         {/* Column headers hint */}
@@ -150,7 +145,13 @@ export default function ProductPurchaseModal({ open, onClose, onCreated }: Produ
             />
           ))}
         </div>
-
+        <button
+            type="button"
+            onClick={() => setRows((prev) => [...prev, EMPTY_ROW()])}
+            className="flex items-center gap-1.5 text-xs font-medium text-[var(--accent)] hover:opacity-80 transition-opacity"
+          >
+            <HiPlus size={13} /> Add Row
+          </button>
         {rowError && <p className="text-xs text-[var(--danger)]">{rowError}</p>}
 
        

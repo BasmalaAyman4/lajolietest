@@ -12,6 +12,7 @@ import {
   useCreateCityMutation,
   useUpdateCityMutation,
 } from '../services/cityApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -88,9 +89,9 @@ export default function CityFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

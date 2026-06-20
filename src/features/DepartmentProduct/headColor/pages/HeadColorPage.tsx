@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { HeadColor } from '../types'
 import { useGetHeadColorsQuery, useDeleteHeadColorMutation } from '../services/headColorApi'
 import HeadColorFormModal from '../components/HeadColorFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function HeadColorPage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function HeadColorPage() {
     try {
       await deleteHeadColor(deleteModal.id).unwrap()
       toast.success('Head color deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

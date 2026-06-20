@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '@/components/shared'
 import { useStopDiscountDetailMutation } from '../services/salonServiceDiscountApi'
 import type { DiscountDetail } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 interface DiscountDetailsPanelProps {
   discountId: number
@@ -31,9 +32,9 @@ export default function DiscountDetailsPanel({
     try {
       await stopDetail({ discountId, detailId: confirmId }).unwrap()
       toast.success('Service discount stopped')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setConfirmId(null)
     }
   }

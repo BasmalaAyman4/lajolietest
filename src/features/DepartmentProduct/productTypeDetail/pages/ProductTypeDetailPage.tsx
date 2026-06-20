@@ -9,6 +9,7 @@ import type { ProductTypeDetail } from '../types'
 import { useGetProductTypeDetailsQuery, useDeleteProductTypeDetailMutation, useGetProductTypeDropdownQuery } from '../services/productTypeDetailApi'
 import ProductTypeDetailFormModal from '../components/ProductTypeDetailFormModal'
 import ProductTypeDetailImageModal from '../components/ProductTypeDetailImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ProductTypeDetailPage() {
   const { t } = useTranslation()
@@ -34,9 +35,9 @@ export default function ProductTypeDetailPage() {
     try {
       await deleteProductTypeDetail(deleteModal.id).unwrap()
       toast.success('Product Type Detail deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

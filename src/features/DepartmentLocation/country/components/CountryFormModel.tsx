@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button } from '@/components/shared'
 import type { Country } from '../types'
 import { useCreateCountryMutation, useUpdateCountryMutation } from '../services/countryApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -60,9 +61,9 @@ export default function CountryFormModel({ open, onClose, country }: CountryForm
         toast.success(t('common.success'))
       }
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

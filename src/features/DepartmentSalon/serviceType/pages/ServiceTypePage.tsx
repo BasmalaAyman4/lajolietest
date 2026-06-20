@@ -9,6 +9,7 @@ import type { ServiceType } from '../types'
 import { useGetServiceTypesQuery, useDeleteServiceTypeMutation, useGetServiceCategoryDropdownQuery } from '../services/serviceTypeApi'
 import ServiceTypeFormModal from '../components/ServiceTypeFormModal'
 import ServiceTypeImageModal from '../components/ServiceTypeImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ServiceTypePage() {
   const { t } = useTranslation()
@@ -34,9 +35,9 @@ export default function ServiceTypePage() {
     try {
       await deleteServiceType(deleteModal.id).unwrap()
       toast.success('Service Type deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

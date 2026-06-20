@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '@/components/shared'
 import { useDeletePurchaseDetailMutation } from '../services/purchaseApi'
 import type { PurchaseDetail } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 interface PurchaseDetailsPanelProps {
   details: PurchaseDetail[]
@@ -25,9 +26,9 @@ export default function PurchaseDetailsPanel({ details }: PurchaseDetailsPanelPr
     try {
       await deleteDetail(confirmId).unwrap()
       toast.success('Detail removed')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setConfirmId(null)
     }
   }

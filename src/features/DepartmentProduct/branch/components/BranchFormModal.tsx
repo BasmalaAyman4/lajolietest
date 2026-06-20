@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button } from '@/components/shared'
 import type { Branch } from '../types'
 import { useCreateBranchMutation, useUpdateBranchMutation } from '../services/branchApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -62,9 +63,9 @@ export default function BranchFormModal({ open, onClose, branch }: BranchFormMod
         toast.success(t('common.success'))
       }
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

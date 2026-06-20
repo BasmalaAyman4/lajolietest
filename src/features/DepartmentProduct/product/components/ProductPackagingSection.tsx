@@ -22,6 +22,8 @@ import {
   useGetPackagingDropdownQuery,
 } from '../services/productApi'
 import type { ProductFull, SavePackagingItem } from '../types'
+import { getApiError } from '@/services/apiHelpers'
+import { useTranslation } from 'react-i18next'
 
 interface Row {
   productPackagingId: number
@@ -49,7 +51,7 @@ export default function ProductPackagingSection({
   const [rows, setRows] = useState<Row[]>([])
   const [editRows, setEditRows] = useState<Row[]>([])
   const [stopId, setStopId] = useState<number | null>(null)
-
+const {t} = useTranslation()
   const { data: sizes = [], isLoading: sizesLoading } = useGetSizeDropdownQuery()
   const { data: packagings = [], isLoading: pkgLoading } = useGetPackagingDropdownQuery()
 
@@ -135,9 +137,9 @@ export default function ProductPackagingSection({
       toast.success('Packaging saved successfully!')
       setViewMode(true)
       onUpdate()
-    } catch {
-      toast.error('Failed to save packaging')
-    }
+    } catch (error: any) {
+                      toast.error(getApiError(error, t('common.error')))
+                    }
   }
 
   const handleStop = async () => {
@@ -147,9 +149,9 @@ export default function ProductPackagingSection({
       toast.success('Packaging stopped')
       setStopId(null)
       onUpdate()
-    } catch {
-      toast.error('Failed to stop packaging')
-    }
+    } catch (error: any) {
+                      toast.error(getApiError(error, t('common.error')))
+                    }
   }
 
   const dropdownsLoading = sizesLoading || pkgLoading

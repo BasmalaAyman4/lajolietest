@@ -13,6 +13,7 @@ import {
   useUpdateProductTypeDetailMutation,
   useGetProductTypeDropdownQuery,
 } from '../services/productTypeDetailApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -73,7 +74,6 @@ export default function ProductTypeDetailFormModal({ open, onClose, productTypeD
     try {
       if (isEdit && productTypeDetail) {
         const data = await updateProductTypeDetail({ id: productTypeDetail.id, ...payload }).unwrap()
-       console.log(data)
         toast.success(t('common.success'))
         onClose()
       } else {
@@ -82,10 +82,9 @@ export default function ProductTypeDetailFormModal({ open, onClose, productTypeD
         onClose()
         onCreated?.(newId)
       }
-    } catch (err) {
-       console.error('Submit error:', err)
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   return (

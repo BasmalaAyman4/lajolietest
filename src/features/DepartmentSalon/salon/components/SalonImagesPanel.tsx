@@ -1,46 +1,90 @@
 // ─── SalonImagesPanel ─────────────────────────────────────────────────────────
 //
-//  Shows the gallery of salon images with approve / delete actions.
-//  Also handles the logo approve action.
+//  Uses the shared <ImageGalleryPanel> component so it automatically matches
+//  the PendingPhotoApprovalsPage visual language.
+//
+//  Responsibilities here:
+//  - RTK Query mutations (approve, delete, upload)
+//  - Mapping SalonImage → GalleryImage shape
+//  - Building the action config per image
+//  - Owning the delete confirm modal
+//  - Rendering the upload section as a slot
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { HiCheck, HiTrash, HiPhotograph } from 'react-icons/hi'
+import { HiCheck, HiTrash, HiUpload } from 'react-icons/hi'
+import { TbXboxXFilled } from 'react-icons/tb'
+
 import { ConfirmModal } from '@/components/shared'
+import UploadImage, { type UploadedFile } from '@/components/shared/UploadImage'
 import type { SalonImage } from '../types'
 import {
   useApproveImageMutation,
   useDeleteSalonImageMutation,
+  useAddSalonImagesMutation,
 } from '../services/salonApi'
+
+import ImageGalleryPanel, { type GalleryImage, type ImageAction } from '@/components/shared/ImageGalleryPanel'
 
 interface SalonImagesPanelProps {
   salonId: number
   images: SalonImage[]
-  onMutated: () => void // caller refetches detail
+  isLoading?: boolean
+  onMutated: () => void
 }
 
 export default function SalonImagesPanel({
+  salonId,
   images,
+  isLoading,
   onMutated,
 }: SalonImagesPanelProps) {
-  const [approveImage, { isLoading: isApproving }] = useApproveImageMutation()
-  const [deleteImage, { isLoading: isDeleting }] = useDeleteSalonImageMutation()
+  const [approveImage]                              = useApproveImageMutation()
+  const [deleteImage,  { isLoading: isDeleting }]  = useDeleteSalonImageMutation()
+  const [addImages,    { isLoading: isUploading }] = useAddSalonImagesMutation()
 
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: number | null }>({
+  const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([])
+  const [deleteModal,  setDeleteModal]  = useState<{ open: boolean; id: number | null }>({
     open: false,
     id: null,
   })
 
-  const handleApprove = async (id: number) => {
-    try {
-      await approveImage(id).unwrap()
-      toast.success('Image approved')
-      onMutated()
-    } catch {
-      toast.error('Failed to approve image')
-    }
+  // Per-image loading state (avoids re-rendering the whole grid per action)
+  const [approvingIds, setApprovingIds] = useState<Set<number>>(new Set())
+
+  // ── Upload ──────────────────────────────────────────────────────────────────
+  const handleUpload = async () => {
+    if (!pendingFiles.length) return
+    const form = new FormData()
+    form.append('SalonId', String(salonId))
+    pendingFiles.forEach((f) => form.append('SalonPictures', f.file))
+
+    toast.promise(addImages(form).unwrap(), {
+      loading: `Uploading ${pendingFiles.length} image${pendingFiles.length > 1 ? 's' : ''}…`,
+      success: () => {
+        setPendingFiles([])
+        onMutated()
+        return 'Images uploaded successfully'
+      },
+      error: 'Failed to upload images',
+    })
   }
 
+  // ── Approve ─────────────────────────────────────────────────────────────────
+  const handleApprove = useCallback(async (img: SalonImage) => {
+    setApprovingIds((prev) => new Set(prev).add(img.id))
+    try {
+      await approveImage(img.id).unwrap()
+      toast.success(`Image ${img.isApproved ? 'unapproved' : 'approved'} successfully`)
+      onMutated()
+    } catch {
+      toast.error('Failed to update image status')
+    } finally {
+      setApprovingIds((prev) => { const s = new Set(prev); s.delete(img.id); return s })
+    }
+  }, [approveImage, onMutated])
+
+  // ── Delete ──────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteModal.id) return
     try {
@@ -54,69 +98,85 @@ export default function SalonImagesPanel({
     }
   }
 
-  if (!images.length) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-2 py-12 text-[var(--text-muted)]">
-        <HiPhotograph size={32} className="opacity-40" />
-        <p className="text-sm">No images uploaded</p>
-      </div>
-    )
-  }
+  // ── Map SalonImage → GalleryImage ───────────────────────────────────────────
+  const galleryImages: GalleryImage[] = images.map((img) => ({
+    id: img.id,
+    imageUrl: img.imageUrl,
+    badge: img.isApproved
+      ? { label: 'Approved', variant: 'success' as const }
+      : undefined,
+    // Stash original so we can use it in the action builder
+    meta: { original: img },
+  }))
+
+  // ── Actions per image ───────────────────────────────────────────────────────
+  const buildActions = useCallback(
+    (galleryImg: GalleryImage): ImageAction[] => {
+      const original = galleryImg.meta?.original as SalonImage
+      return [
+        {
+          icon: original.isApproved ? <TbXboxXFilled size={14} /> : <HiCheck size={14} />,
+          label: original.isApproved ? 'Unapprove' : 'Approve',
+          variant: original.isApproved ? 'danger' : 'success',
+          onClick: () => handleApprove(original),
+          isLoading: approvingIds.has(original.id),
+        },
+        {
+          icon: <HiTrash size={14} />,
+          label: 'Delete',
+          variant: 'danger',
+          shape: 'icon',
+          onClick: () => setDeleteModal({ open: true, id: original.id }),
+          disabled: isDeleting,
+        },
+      ]
+    },
+    [handleApprove, approvingIds, isDeleting],
+  )
+
+  // ── Upload section slot ─────────────────────────────────────────────────────
+  const uploadSection = (
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <p className="text-sm font-medium text-[var(--text-primary)] mb-3">Upload Images</p>
+
+      <UploadImage
+        multiple
+        value={pendingFiles}
+        onChange={setPendingFiles}
+        disabled={isUploading}
+      />
+
+      {pendingFiles.length > 0 && (
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">
+            {pendingFiles.length} file{pendingFiles.length > 1 ? 's' : ''} ready
+          </p>
+          <button
+            type="button"
+            onClick={handleUpload}
+            disabled={isUploading}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius)]
+              bg-[var(--accent)] text-white text-sm font-medium
+              hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <HiUpload size={14} />
+            {isUploading ? 'Uploading…' : 'Upload'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {images.map((img) => (
-          <div
-            key={img.id}
-            className="relative group rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] aspect-square"
-          >
-            {/* Image */}
-            <img
-              src={img.imageUrl}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                ;(e.target as HTMLImageElement).src =
-                  'https://via.placeholder.com/200x200?text=No+Image'
-              }}
-            />
-
-            {/* Approved badge */}
-            {img.isApproved && (
-              <span className="absolute top-1.5 start-1.5 inline-flex items-center gap-1 rounded-full bg-[var(--success)] px-2 py-0.5 text-[10px] font-medium text-white">
-                <HiCheck size={10} /> Approved
-              </span>
-            )}
-
-            {/* Hover overlay with actions */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-              {!img.isApproved && (
-                <button
-                  type="button"
-                  disabled={isApproving}
-                  onClick={() => handleApprove(img.id)}
-                  className="w-9 h-9 rounded-full bg-[var(--success)] text-white flex items-center justify-center
-                    hover:scale-110 transition-all disabled:opacity-50 shadow-md"
-                  title="Approve"
-                >
-                  <HiCheck size={16} />
-                </button>
-              )}
-              <button
-                type="button"
-                disabled={isDeleting}
-                onClick={() => setDeleteModal({ open: true, id: img.id })}
-                className="w-9 h-9 rounded-full bg-[var(--danger)] text-white flex items-center justify-center
-                  hover:scale-110 transition-all disabled:opacity-50 shadow-md"
-                title="Delete"
-              >
-                <HiTrash size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ImageGalleryPanel
+        images={galleryImages}
+        isLoading={isLoading}
+        actions={buildActions}
+        uploadSection={uploadSection}
+        emptyMessage="No images uploaded yet"
+        columns="default"
+      />
 
       <ConfirmModal
         open={deleteModal.open}

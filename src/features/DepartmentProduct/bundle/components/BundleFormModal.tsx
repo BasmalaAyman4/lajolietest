@@ -21,6 +21,7 @@ import {
   useUpdateProductBundleMutation,
 } from '../services/productBundleApi'
 import BundleDetailRow from './BundleDetailRow'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -129,9 +130,9 @@ export default function BundleFormModal({ open, onClose, bundle, onCreated }: Bu
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   const SectionHeading = ({ title }: { title: string }) => (

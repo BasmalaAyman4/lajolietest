@@ -8,6 +8,7 @@ import { HiUpload, HiX, HiPhotograph } from 'react-icons/hi'
 import { cn } from '@/lib/cn'
 import { Modal, Button } from '@/components/shared'
 import { useUploadServiceTypeImageMutation } from '../services/serviceTypeApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const MAX_SIZE = 5 * 1024 * 1024
 
@@ -53,9 +54,9 @@ export default function ServiceTypeImageModal({ open, onClose, serviceTypeId, se
       await uploadImage({ serviceTypeId, file: preview.file }).unwrap()
       toast.success('Image uploaded successfully')
       handleClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   return (

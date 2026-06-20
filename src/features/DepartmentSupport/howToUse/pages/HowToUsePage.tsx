@@ -20,6 +20,7 @@ import {
 } from '../services/howToUseApi'
 import HowToUseCard from '../components/HowToUseCard'
 import HowToUseFormModal from '../components/HowToUseFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function HowToUsePage() {
   const { t } = useTranslation()
@@ -52,9 +53,9 @@ export default function HowToUsePage() {
     try {
       await deleteHowToUse(deleteModal.id).unwrap()
       toast.success('Deleted successfully')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

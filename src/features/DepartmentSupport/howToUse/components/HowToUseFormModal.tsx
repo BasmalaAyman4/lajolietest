@@ -13,6 +13,7 @@ import {
   useGetPurposeDropdownQuery,
 } from '../services/howToUseApi'
 import { MEDIA_TYPE } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   titleEn:             z.string().min(1, 'English title is required'),
@@ -88,9 +89,9 @@ export default function HowToUseFormModal({ open, onClose }: HowToUseFormModalPr
       }).unwrap()
       toast.success(t('common.success'))
       handleClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   const SectionHeading = ({ title }: { title: string }) => (

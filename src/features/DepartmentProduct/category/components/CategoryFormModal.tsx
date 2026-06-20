@@ -11,6 +11,7 @@ import {
   useCreateCategoryProductMutation,
   useUpdateCategoryProductMutation,
 } from '../services/categoryProductApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -78,9 +79,9 @@ export default function CategoryProductFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

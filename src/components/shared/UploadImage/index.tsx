@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { cn } from '@/lib/cn'
 import { HiUpload, HiX, HiPhotograph, HiFilm } from 'react-icons/hi'
@@ -13,30 +13,18 @@ interface UploadImageProps {
   label?: string
   error?: string
   mode?: 'image' | 'video'
-  /** Allow multiple images */
   multiple?: boolean
-  /** Max file size in bytes (default 5MB) */
-  maxSize?: number
   value?: UploadedFile[]
   onChange?: (files: UploadedFile[]) => void
   disabled?: boolean
   required?: boolean
 }
 
-/**
- * UploadImage – drag-and-drop image uploader.
- *
- * Works with react-hook-form via Controller:
- *   <Controller name="images" control={control}
- *     render={({ field }) => <UploadImage {...field} multiple />}
- *   />
- */
 export default function UploadImage({
   label,
   error,
   mode = 'image',
   multiple = false,
-  maxSize = 5 * 1024 * 1024,
   value = [],
   onChange,
   disabled,
@@ -45,13 +33,15 @@ export default function UploadImage({
   const { t } = useTranslation()
   const [fileError, setFileError] = useState('')
 
+  // ── Drag-to-reorder state ────────────────────────────────────────────────
+  const dragIndex   = useRef<number | null>(null)
+  const [dragOver, setDragOver] = useState<number | null>(null)
 
   const isVideo = mode === 'video'
-  const resolvedMaxSize = maxSize ?? (isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024)
-  const accept = isVideo ? { 'video/*': [] } : { 'image/*': [] }
+  const accept  = isVideo ? { 'video/*': [] } : { 'image/*': [] }
 
-
-const onDrop = useCallback(
+  // ── Dropzone (file picking) ──────────────────────────────────────────────
+  const onDrop = useCallback(
     (accepted: File[], rejected: { errors: { message: string }[] }[]) => {
       setFileError('')
       if (rejected.length > 0) {
@@ -70,21 +60,51 @@ const onDrop = useCallback(
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept,
-    multiple: isVideo ? false : multiple, // video is always single
-    maxSize: resolvedMaxSize,
+    multiple: isVideo ? false : multiple,
     disabled,
   })
 
+  // ── Remove ───────────────────────────────────────────────────────────────
   const remove = (index: number) => {
     const next = [...value]
     URL.revokeObjectURL(next[index].preview)
     next.splice(index, 1)
     onChange?.(next)
   }
-  
+
+  // ── Reorder helpers ──────────────────────────────────────────────────────
+  const handleDragStart = (index: number) => {
+    dragIndex.current = index
+  }
+
+  const handleDragEnter = (index: number) => {
+    if (dragIndex.current === null || dragIndex.current === index) return
+    setDragOver(index)
+  }
+
+  const handleDrop = (toIndex: number) => {
+    const fromIndex = dragIndex.current
+    if (fromIndex === null || fromIndex === toIndex) {
+      setDragOver(null)
+      dragIndex.current = null
+      return
+    }
+    const next = [...value]
+    const [moved] = next.splice(fromIndex, 1)
+    next.splice(toIndex, 0, moved)
+    onChange?.(next)
+    dragIndex.current = null
+    setDragOver(null)
+  }
+
+  const handleDragEnd = () => {
+    dragIndex.current = null
+    setDragOver(null)
+  }
+
   const Icon = isVideo ? HiFilm : HiUpload
 
- return (
+  return (
     <div className="flex flex-col gap-2 w-full">
       {label && (
         <label className="text-sm font-medium text-[var(--text-secondary)]">
@@ -119,34 +139,42 @@ const onDrop = useCallback(
             ? t('upload.singleVideo', 'Single video')
             : multiple
               ? t('upload.multipleImages', 'Multiple images')
-              : t('upload.singleImage', 'Single image')}{' '}
-          · Max {Math.round(resolvedMaxSize / 1024 / 1024)} MB
+              : t('upload.singleImage', 'Single image')}
         </p>
       </div>
 
-      {/* Previews */}
+      {/* Previews — draggable to reorder */}
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-1">
           {value.map((f, i) => (
             <div
-              key={i}
+              key={f.preview}                     
+              draggable={!isVideo && multiple}     
+              onDragStart={() => handleDragStart(i)}
+              onDragEnter={() => handleDragEnter(i)}
+              onDragOver={(e) => e.preventDefault()} 
+              onDrop={() => handleDrop(i)}
+              onDragEnd={handleDragEnd}
               className={cn(
-                'relative overflow-hidden rounded-[var(--radius)] border border-[var(--border)] group',
+                'relative overflow-hidden rounded-[var(--radius)] border group',
+                'transition-all duration-150',
                 isVideo ? 'w-full aspect-video' : 'w-20 h-20',
+                !isVideo && multiple && 'cursor-grab active:cursor-grabbing',
+                dragOver === i
+                  ? 'border-[var(--accent)] scale-105 shadow-lg'
+                  : 'border-[var(--border)]',
+                dragIndex.current === i && 'opacity-40',
               )}
             >
               {isVideo ? (
-                <video
-                  src={f.preview}
-                  className="w-full h-full object-cover"
-                  controls
-                  muted
-                />
+                <video src={f.preview} className="w-full h-full object-cover" controls muted />
               ) : (
                 <>
                   <img src={f.preview} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100
-                    transition-opacity flex items-center justify-center">
+                  <div
+                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100
+                      transition-opacity flex items-center justify-center"
+                  >
                     <HiPhotograph className="text-white/70" size={18} />
                   </div>
                 </>
@@ -166,9 +194,25 @@ const onDrop = useCallback(
               >
                 <HiX size={11} className="text-white" />
               </button>
+
+              {/* First-image badge */}
+              {!isVideo && multiple && i === 0 && (
+                <span
+                  className="absolute bottom-1 start-1 rounded bg-black/60 px-1
+                    text-[9px] font-semibold text-white leading-4 pointer-events-none"
+                >
+                  1st
+                </span>
+              )}
             </div>
           ))}
         </div>
+      )}
+
+      {multiple && value.length > 1 && (
+        <p className="text-[11px] text-[var(--text-muted)]">
+          {t('upload.reorderHint', 'Drag thumbnails to reorder')}
+        </p>
       )}
 
       {(error || fileError) && (

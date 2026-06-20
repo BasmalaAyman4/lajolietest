@@ -2,7 +2,7 @@ import Modal from './index'
 import { useTranslation } from 'react-i18next'
 import { HiCheckCircle, HiExclamation, HiPlay, HiStop, HiTrash } from 'react-icons/hi'
 
-type ConfirmVariant = 'delete' | 'stop' | 'active'|'approve'
+type ConfirmVariant = 'delete' | 'stop' | 'active'|'approve' | 'unapprove'
 
 interface ConfirmModalProps {
   open: boolean
@@ -51,7 +51,14 @@ const VARIANT_CONFIG: Record<
     btnClass: 'bg-[var(--success)]',
     defaultTitle: 'Approve',
     confirmKey: 'common.approve',
-  },
+  },  
+  unapprove: {
+    icon: <HiCheckCircle size={24} className="text-[var(--danger)]" />,
+    iconBg: 'bg-red-500/10',
+    btnClass: 'bg-[var(--danger)]',
+    defaultTitle: 'Unapprove',
+    confirmKey: 'common.unapprove',
+  },  
 }
 
 /**

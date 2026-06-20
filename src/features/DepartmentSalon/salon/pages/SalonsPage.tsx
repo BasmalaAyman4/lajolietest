@@ -26,6 +26,49 @@ function StatusBadge({ active }: { active: boolean }) {
 }
 
 // ── Column definitions ────────────────────────────────────────────────────────
+
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+const FILTERS: FilterConfig[] = [
+  {
+    key: 'isVerify',
+    label: 'Verification',
+    options: [
+      { label: 'Verified', value: 'true' },
+      { label: 'Unverified', value: 'false' },
+    ],
+  },
+  {
+    key: 'isTrusted',
+    label: 'Trust',
+    options: [
+      { label: 'Trusted', value: 'true' },
+      { label: 'Not Trusted', value: 'false' },
+    ],
+  },
+]
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+export default function SalonsPage() {
+  const navigate = useNavigate()
+  const { data: salons = [], isLoading } = useGetSalonsQuery()
+
+  const [addModal, setAddModal] = useState(false)
+  const [search, setSearch]     = useState('')
+
+  // ── Client-side search (DataTable also handles this internally,
+  //    but we expose it here for the stats bar)
+  const filteredCount = useMemo(() => {
+    if (!search.trim()) return salons.length
+    const q = search.toLowerCase()
+    return salons.filter(
+      (s) =>
+        s.nameEn.toLowerCase().includes(q) ||
+        s.nameAr.toLowerCase().includes(q) ||
+        s.ownerName.toLowerCase().includes(q) ||
+        s.telephone.includes(q),
+    ).length
+  }, [salons, search])
 const COLUMNS: Column<SalonListItem>[] = [
   {
     key: 'nameEn',
@@ -89,6 +132,11 @@ const COLUMNS: Column<SalonListItem>[] = [
     render: (row) => <StatusBadge active={row.isTrusted} />,
   },
   {
+    key:'isPhoneVerified',
+    label: 'Account Verified',
+    render: (row) => <StatusBadge active={row.isPhoneVerified} />,
+  },
+  {
     key: 'hijabSection',
     label: 'Features',
     render: (row) => (
@@ -111,50 +159,33 @@ const COLUMNS: Column<SalonListItem>[] = [
       </div>
     ),
   },
+    {
+        key: 'actions',
+        label: 'Actions',
+        align: 'right',
+        width: '110px',
+        render: (row) => (
+          <div className="flex items-center justify-end gap-1">
+            <a
+              type="button"
+              href={`/salon-detail/${row.id}`}
+              className="px-2 py-1 rounded text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+              onClick={(e) => {
+                // let Ctrl/Cmd+click open new tab natively
+                if (!e.ctrlKey && !e.metaKey) {
+                  e.preventDefault()
+                  navigate(`/salon-detail/${row.id}`)
+                }
+              }}
+            >
+              Details
+            </a>
+
+         
+          </div>
+        ),
+      },
 ]
-
-// ── Filters ───────────────────────────────────────────────────────────────────
-const FILTERS: FilterConfig[] = [
-  {
-    key: 'isVerify',
-    label: 'Verification',
-    options: [
-      { label: 'Verified', value: 'true' },
-      { label: 'Unverified', value: 'false' },
-    ],
-  },
-  {
-    key: 'isTrusted',
-    label: 'Trust',
-    options: [
-      { label: 'Trusted', value: 'true' },
-      { label: 'Not Trusted', value: 'false' },
-    ],
-  },
-]
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function SalonsPage() {
-  const navigate = useNavigate()
-  const { data: salons = [], isLoading } = useGetSalonsQuery()
-
-  const [addModal, setAddModal] = useState(false)
-  const [search, setSearch]     = useState('')
-
-  // ── Client-side search (DataTable also handles this internally,
-  //    but we expose it here for the stats bar)
-  const filteredCount = useMemo(() => {
-    if (!search.trim()) return salons.length
-    const q = search.toLowerCase()
-    return salons.filter(
-      (s) =>
-        s.nameEn.toLowerCase().includes(q) ||
-        s.nameAr.toLowerCase().includes(q) ||
-        s.ownerName.toLowerCase().includes(q) ||
-        s.telephone.includes(q),
-    ).length
-  }, [salons, search])
-
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
 
@@ -194,10 +225,10 @@ export default function SalonsPage() {
               bg: 'bg-[var(--accent-soft)]',
             },
             {
-              label: 'Pending Review',
-              value: salons.filter((s) => !s.isVerify || !s.isTrusted).length,
-              color: 'text-[var(--warning,#f59e0b)]',
-              bg: 'bg-amber-500/5',
+              label: 'Account Verified',
+              value: salons.filter((s) => s.isPhoneVerified).length,
+              color: 'text-[var(--success)]',
+              bg: 'bg-[var(--success)]/5',
             },
           ].map((card) => (
             <div
@@ -215,6 +246,7 @@ export default function SalonsPage() {
       <div className="rounded-[var(--radius-lg)] border border-[var(--border)] overflow-hidden bg-[var(--bg-card)]">
         <DataTable<SalonListItem>
           columns={COLUMNS}
+          tableKey="salons"
           data={salons}
           rowKey="id"
           loading={isLoading}
@@ -223,7 +255,6 @@ export default function SalonsPage() {
           onSearch={setSearch}
           filters={FILTERS}
           emptyMessage="No salons found."
-          onRowClick={(row) => navigate(`/salon-detail/${row.id}`)}
         />
       </div>
 

@@ -8,6 +8,7 @@ import { HiUpload, HiX, HiPhotograph } from 'react-icons/hi'
 import { cn } from '@/lib/cn'
 import { Modal, Button } from '@/components/shared'
 import { useUploadProductTypeDetailImageMutation } from '../services/productTypeDetailApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const MAX_SIZE = 5 * 1024 * 1024
 
@@ -50,15 +51,12 @@ export default function ProductTypeDetailImageModal({ open, onClose, ProductType
   const handleUpload = async () => {
     if (!preview) return
     try {
-      console.log('ProductTypeDetailId', ProductTypeDetailId)
-      console.log('file', preview.file)
       const res = await uploadImage({ ProductTypeDetailId, file: preview.file }).unwrap()
-      console.log('res', res)
       toast.success('Image uploaded successfully')
       handleClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

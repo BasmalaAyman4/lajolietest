@@ -8,6 +8,7 @@ import type {
   SavePackagingPurchaseRequest,
   DropdownItem,
   ProductDetailOption,
+  UpdatePurchaseRequest,
 } from '../types'
 
 // Re-export shape expected from BasicData endpoints
@@ -64,7 +65,18 @@ export const purchaseApi = api.injectEndpoints({
    invalidatesTags: [{ type: 'Purchase', id: 'LIST' }],
 
 }),
-
+updatePurchase: builder.mutation<void, UpdatePurchaseRequest>({
+  query: ({ id, ...body }) => ({
+    url: `/api/admin/Purchase`,
+    method: 'PUT',
+    body: { id, ...body },  // ✅ id in both URL and body
+  }),
+  invalidatesTags: (_r, _e, { id }) => [
+    { type: 'Purchase', id },
+    { type: 'Purchase', id: 'LIST' },
+  ],
+}),
+ 
     // ── Dropdowns ───────────────────────────────────────────────────────────
     getVendorDropdown: builder.query<DropdownItem[], void>({
       query: () => '/api/admin/BasicData/getVendorDropdown',
@@ -98,6 +110,7 @@ export const {
   useSavePackagingPurchaseMutation,
   useDeletePurchaseDetailMutation,
   useDeletePurchaseMutation,
+  useUpdatePurchaseMutation,
   useGetVendorDropdownQuery,
   useGetStoreDropdownQuery,
   useGetBranchDropdownQuery,

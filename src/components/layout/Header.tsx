@@ -10,7 +10,6 @@ export default function Header() {
   const dispatch = useAppDispatch()
   const lang = useAppSelector((s) => s.ui.lang)
   const { logout, user } = useAuth()
-console.log(user)
   const switchLang = () => {
     const next = lang === 'en' ? 'ar' : 'en'
     i18n.changeLanguage(next)

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '@/components/shared'
 import { useRemoveBundleDetailMutation } from '../services/productBundleApi'
 import type { ProductBundleDetail } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 interface BundleDetailsPanelProps {
   bundleId: number
@@ -27,9 +28,9 @@ export default function BundleDetailsPanel({ bundleId, details }: BundleDetailsP
     try {
       await removeDetail({ bundleId, productDetailId: confirmId }).unwrap()
       toast.success('Product removed from bundle')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setConfirmId(null)
     }
   }

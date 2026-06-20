@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button } from '@/components/shared'
 import type { BarcodeType } from '../types'
 import { useCreateBarcodeTypeMutation, useUpdateBarcodeTypeMutation } from '../services/barcodeTypeApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -48,9 +49,9 @@ export default function BarcodeTypeFormModal({ open, onClose, barcodeType }: Bar
       }
       toast.success(t('common.success'))
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

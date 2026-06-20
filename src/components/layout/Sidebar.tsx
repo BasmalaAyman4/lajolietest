@@ -137,9 +137,10 @@ const NAV_ITEMS: NavItem[] = [
       { name: "Salon Service", path: "/service-code" },
       { name: "Salon Discount", path: "/salon-discounts" },
       { name: "Specialist Job", path: "/specialistJob" },
-/*       { name: "Makeup Artist", path: "/makeupArtist" },
- */      { name: "Service Category", path: "/service-category" },
+      { name: "Pending Photo", path: "/pending-phaoto" },
+     { name: "Service Category", path: "/service-category" },
       { name: "Service Type", path: "/service-type" },
+      { name: "Send SMS", path: "/send-sms" },
     ],
   },
 
@@ -189,12 +190,13 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { name: "FAQ Types", path: "/faqType" },
       { name: "FAQ Details", path: "/faq" },
-      { name: "Terms Types", path: "/termsAndConditionsType" },
-      { name: "Terms & Conditions", path: "/termsAndConditions" },
+      { name: "Terms Types", path: "/terms-types" },
+      { name: "Terms & Conditions", path: "/terms-and-conditions" },
       { name: "Report Issue", path: "/report-issues" },
       { name: "Contact Us", path: "/contact-us" },
       { name: "How To Use", path: "/how-to-use" },
       { name: "Default Image", path: "/default-image" },
+      { name: "Startup Media", path: "/startup-media" },
     ],
   },
 

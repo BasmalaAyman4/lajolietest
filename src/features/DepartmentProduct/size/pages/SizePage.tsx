@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { Size } from '../types'
 import { useGetSizesQuery, useDeleteSizeMutation } from '../services/sizeApi'
 import SizeFormModal from '../components/SizeFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function SizePage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function SizePage() {
     try {
       await deleteSize(deleteModal.id).unwrap()
       toast.success('Size deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }finally {
       setDeleteModal({ open: false, id: null })
     }
   }

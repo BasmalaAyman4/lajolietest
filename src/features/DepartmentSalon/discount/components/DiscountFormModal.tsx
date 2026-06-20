@@ -14,6 +14,7 @@ import { Modal, Input, Button } from '@/components/shared'
 import { useCreateDiscountMutation } from '../services/salonServiceDiscountApi'
 import DiscountDetailRow from './DiscountDetailRow'
 import type { DiscountDetailRequest } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   dateFrom: z.string().min(1, 'Start date is required'),
@@ -86,9 +87,9 @@ export default function DiscountFormModal({
       toast.success(t('common.success'))
       handleClose()
     
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   const SectionHeading = ({ title }: { title: string }) => (

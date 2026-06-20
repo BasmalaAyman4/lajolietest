@@ -84,6 +84,15 @@ export const reelApi = api.injectEndpoints({
       query: (id) => ({ url: `/api/admin/Reals/${id}`, method: 'DELETE' }),
       invalidatesTags: (_r, _e, id) => [{ type: 'Reel', id }],
     }),
+
+    // ── APPROVE reel ─────────────────────────────────────────────────────────
+    approveReel: builder.mutation<void, number>({
+      query: (id) => ({ url: `/api/admin/Reals/approve/${id}`, method: 'PUT' }),
+      invalidatesTags: (_r, _e, id) => [
+        { type: 'Reel', id },
+        { type: 'Reel', id: 'LIST' },
+      ],
+    }),
   }),
   overrideExisting: false,
 })
@@ -101,4 +110,5 @@ export const {
   useUploadReelVideoMutation,
   useDeleteReelMutation,
   useLazyGetReelByIdQuery,
+  useApproveReelMutation,
 } = reelApi

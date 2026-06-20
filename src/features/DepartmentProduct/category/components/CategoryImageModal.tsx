@@ -7,6 +7,7 @@ import { HiUpload, HiX, HiPhotograph } from 'react-icons/hi'
 import { cn } from '@/lib/cn'
 import { Modal, Button } from '@/components/shared'
 import { useUploadCategoryImageMutation } from '../services/categoryProductApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const MAX_SIZE = 5 * 1024 * 1024
 
@@ -64,9 +65,9 @@ export default function CategoryImageModal({
       await uploadImage({ categoryId, file: preview.file }).unwrap()
       toast.success(t('category.imageUploadSuccess', 'Image uploaded successfully'))
       handleClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

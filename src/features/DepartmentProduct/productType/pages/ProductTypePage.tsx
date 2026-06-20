@@ -17,6 +17,7 @@ import {
 } from '../services/productTypeApi'
 import ProductTypeFormModal from '../components/ProductTypeFormModal'
 import ProductTypeImageModal from '../components/ProductTypeImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ProductTypePage() {
   const { t } = useTranslation()
@@ -57,9 +58,9 @@ export default function ProductTypePage() {
     try {
       await deleteProductType(deleteModal.id).unwrap()
       toast.success('Product type deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }finally {
       setDeleteModal({ open: false, id: null })
     }
   }

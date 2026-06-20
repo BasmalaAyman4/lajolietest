@@ -9,6 +9,7 @@ import type { ServiceCode } from '../types'
 import { useGetServiceCodesQuery, useDeleteServiceCodeMutation } from '../services/serviceCodeApi'
 import ServiceCodeFormModal from '../components/ServiceCodeFormModal'
 import ServiceCodeImageModal from '../components/ServiceCodeImageModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ServiceCodePage() {
   const { t } = useTranslation()
@@ -37,9 +38,9 @@ export default function ServiceCodePage() {
     try {
       await deleteServiceCode(deleteModal.id).unwrap()
       toast.success('ServiceCode deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

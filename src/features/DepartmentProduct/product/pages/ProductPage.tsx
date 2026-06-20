@@ -116,20 +116,30 @@ const [searchInput, setSearchInput] = useState('')
       width: '110px',
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
-          <button
+          <a
             type="button"
-            onClick={() => navigate(`/products/${row.id}`)}
+            href={`/products/${row.id}`}
             className="px-2 py-1 rounded text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+            onClick={(e) => {
+              // let Ctrl/Cmd+click open new tab natively
+              if (!e.ctrlKey && !e.metaKey) {
+                e.preventDefault()
+                navigate(`/products/${row.id}`)
+              }
+            }}
           >
             Details
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeleteModal({ open: true, id: row.id })}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-red-50 transition-colors"
-          >
-            <HiTrash size={15} />
-          </button>
+          </a>
+          {!row.isDeleted && (
+  <button
+    type="button"
+    onClick={() => setDeleteModal({ open: true, id: row.id })}
+    className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-red-50 transition-colors"
+  >
+    <HiTrash size={15} />
+  </button>
+)}
+       
         </div>
       ),
     },
@@ -179,6 +189,8 @@ const [searchInput, setSearchInput] = useState('')
       
           // ── hide the actions column from the column picker by default ──
           defaultHiddenKeys={[]}
+          getRowHref={(row) => `/products/${row.id}`}
+
         />
       </div>
 

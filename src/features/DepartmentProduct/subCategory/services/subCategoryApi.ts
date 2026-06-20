@@ -43,7 +43,7 @@ export const subCategoryApi = api.injectEndpoints({
     // ── DELETE specialist by id ─────────────────────────────────────────────
     deleteSubCategory: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/api/admin/SubCategory/${id}`,
+        url: `/api/admin/SubCategory?id=${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: (_result, _error, id) => [{ type: 'SubCategory', id }],

@@ -97,7 +97,11 @@ export const api = createApi({
     'DefaultImage',
     'ReelCategory',
     'Reel',
-    
+    'TermsType',
+    'TermsAndConditions',
+    'Order',
+    'StartupMedia',
+    'PendingApprovals'
   ],
   endpoints: () => ({}),
 })

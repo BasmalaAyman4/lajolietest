@@ -6,7 +6,7 @@ export default function LoginPage() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your salon dashboard"
+      subtitle="Sign in to your Lajolie dashboard"
     >
       <LoginForm />
     </AuthLayout>

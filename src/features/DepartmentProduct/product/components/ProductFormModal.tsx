@@ -28,6 +28,7 @@ import {
   useGetInterestDropdownQuery,
   useGetGoalDropdownQuery,
 } from '../services/productApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -40,6 +41,8 @@ const schema = z.object({
   howToUse: z.string().default(''),
   description: z.string().default(''),
   ingredients: z.string().default(''),
+  descriptionAr: z.string().default(''),
+  ingredientsAr: z.string().default(''),
   isVegan: z.boolean().default(false),
   forChildren: z.boolean().default(false),
   canTry: z.boolean().default(false),
@@ -50,6 +53,7 @@ const schema = z.object({
   productTypeDetailIds: z.array(z.number()).default([]),
   isSensitiveSkin: z.boolean().default(false),
   isActive: z.boolean().default(true),
+  isTrending: z.boolean().default(false),
   beautyCategoryIds: z.array(z.number()).default([]),
   concernIds: z.array(z.number()).default([]),
   interestIds: z.array(z.number()).default([]),
@@ -115,7 +119,6 @@ const productTypeDetails = useMemo(
     () => allSubCategories.filter((s) => s.categoryId === watchedCategoryId),
     [allSubCategories, watchedCategoryId],
   )
-console.log('raw:', rawProductTypeDetails)
 
   const {
     register, handleSubmit, reset, control, setValue, watch,
@@ -126,21 +129,19 @@ console.log('raw:', rawProductTypeDetails)
       name: '', enName: '', brandId: 0, categoryId: 0,
       subCategoryId: [], productTypeIds: [],
       howToUse: '', description: '', ingredients: '',
+      descriptionAr: '', ingredientsAr: '',
       isVegan: false, forChildren: false, canTry: false,
       isDisappearColor: false, isDisappearSize: false,
       hairTypes: [], skinTypes: [], productTypeDetailIds: [],
       isSensitiveSkin: false, isActive: true,
-      beautyCategoryIds: [], concernIds: [], interestIds: [], goalIds: [],
+      beautyCategoryIds: [], concernIds: [], interestIds: [], goalIds: [], isTrending: false,
     },
   })
 
   const categoryIdValue = watch('categoryId')
   const productTypeIdValue = watch('productTypeIds')
 
-  useEffect(() => {
-    setWatchedCategoryId(Number(categoryIdValue) || 0)
-    setValue('subCategoryId', [])
-  }, [categoryIdValue, setValue])
+
 
 const isResetting = useRef(false) // ← add this ref
 
@@ -157,10 +158,10 @@ useEffect(() => {
   }
 }, [isLoadingDetails, productTypeDetails.length])
 useEffect(() => {
-  if ( allSubCategories && product?.subCategoryIds?.length) {
+  if ( filteredSubCategories && product?.subCategoryIds?.length) {
     setValue('subCategoryId', product.subCategoryIds)
   }
-}, [allSubCategories.length])
+}, [filteredSubCategories.length])
 
   useEffect(() => {
     if (!open) return
@@ -185,6 +186,8 @@ useEffect(() => {
         howToUse: product.howToUse ?? '',
         description: product.description ?? '',
         ingredients: product.ingredients ?? '',
+        descriptionAr: product.descriptionAr ?? '',
+        ingredientsAr: product.ingredientsAr ?? '',
         isVegan: product.isVegan,
         forChildren: product.forChildren,
         canTry: product.canTry,
@@ -199,6 +202,7 @@ useEffect(() => {
         interestIds: product.interestIds ?? [],
         goalIds: product.goalIds ?? [],
         beautyCategoryIds:product.beautyCategoryIds??[],
+        isTrending: product.isTrending,
       })
 
 
@@ -212,12 +216,13 @@ useEffect(() => {
       reset({
         name: '', enName: '', brandId: 0, categoryId: 0,
         subCategoryId: [], productTypeIds: [],
-        howToUse: '', description: '', ingredients: '',
+        howToUse: '', description: '', ingredients: '',  descriptionAr: '', ingredientsAr: '',
         isVegan: false, forChildren: false, canTry: false,
         isDisappearColor: false, isDisappearSize: false,
         hairTypes: [], skinTypes: [], productTypeDetailIds: [],
         isSensitiveSkin: false, isActive: true,
         beautyCategoryIds: [], concernIds: [], interestIds: [], goalIds: [],
+        isTrending: false,
       })
     }
   }, [open, product, reset])
@@ -239,9 +244,9 @@ useEffect(() => {
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   const toOpts = (items: { id: number; name: string }[]) =>
@@ -254,7 +259,6 @@ useEffect(() => {
       </span>
     </div>
   )
-console.log('details options:', toOpts(allSubCategories))
 
   return (
     <Modal
@@ -306,26 +310,31 @@ console.log('details options:', toOpts(allSubCategories))
 
         <SectionHeading title="Category" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-   <Controller
+<Controller
   name="categoryId"
   control={control}
   render={({ field }) => (
-    <Select  label="Category" 
-    options={toOpts(categories)} 
-    placeholder="Select category" 
-    error={errors.categoryId?.message} 
-    required 
-    value={field.value}
-    onChange={(e) => field.onChange(Number(e.target.value))}
-    onBlur={field.onBlur}
+    <Select
+      label="Category"
+      options={toOpts(categories)}
+      placeholder="Select category"
+      error={errors.categoryId?.message}
+      required
+      value={field.value}
+      onChange={(e) => {
+        const newId = Number(e.target.value)
+        field.onChange(newId)
+        setWatchedCategoryId(newId)
+        setValue('subCategoryId', [])   // ← only clears on actual user interaction
+      }}
+      onBlur={field.onBlur}
     />
-
   )}
 />
           <Controller control={control} name="subCategoryId" render={({ field }) => (
             <MultiSelect
               label="Sub Category"
-              options={toOpts(allSubCategories)}
+              options={toOpts(filteredSubCategories)}
               value={field.value}
               onChange={field.onChange}
               placeholder={watchedCategoryId ? 'Select sub-categories' : 'Select category first'}
@@ -410,6 +419,7 @@ console.log('details options:', toOpts(allSubCategories))
             { name: 'canTry', label: 'Can Try' },
             { name: 'isDisappearColor', label: 'Disappear Color' },
             { name: 'isDisappearSize', label: 'Disappear Size' },
+            { name: 'isTrending', label: 'Trending' },
           ] as { name: keyof FormValues; label: string }[]).map(({ name, label }) => (
             <Controller key={name} control={control} name={name} render={({ field }) => (
               <Toggle label={label} checked={field.value as boolean} onChange={field.onChange} />
@@ -435,7 +445,10 @@ console.log('details options:', toOpts(allSubCategories))
 
         <SectionHeading title="Content" />
         <Controller control={control} name="description" render={({ field }) => (
-          <RichEditor label="Description" value={field.value} onChange={field.onChange} height={200} />
+          <RichEditor label="Description En" value={field.value} onChange={field.onChange} height={200} />
+        )} />
+         <Controller control={control} name="descriptionAr" render={({ field }) => (
+          <RichEditor label="Description Ar" value={field.value} onChange={field.onChange} height={200} />
         )} />
         <Controller control={control} name="howToUse" render={({ field }) => (
           <RichEditor label="How To Use" value={field.value} onChange={field.onChange} height={200} />
@@ -443,7 +456,9 @@ console.log('details options:', toOpts(allSubCategories))
         <Controller control={control} name="ingredients" render={({ field }) => (
           <RichEditor label="Ingredients" value={field.value} onChange={field.onChange} height={200} />
         )} />
-
+ <Controller control={control} name="ingredientsAr" render={({ field }) => (
+          <RichEditor label="Ingredients Ar" value={field.value} onChange={field.onChange} height={200} />
+        )} />
       </div>
     </Modal>
   )

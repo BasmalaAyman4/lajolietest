@@ -18,6 +18,7 @@ import {
   useGetProductDropdownQuery,
 } from '../services/reelApi'
 import type { CreateReelRequest } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -192,9 +193,9 @@ export default function ReelFormModal({ open, onClose, onCreated }: ReelFormModa
       toast.success(t('common.success'))
       onClose()
       onCreated?.(newId, values.title)
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────

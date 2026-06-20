@@ -86,3 +86,19 @@ export interface ProductDetailOption {
   colorName: string
   purchasePrice: number
 }
+export interface UpdatePurchaseDetailRequest {
+  detailId?:       number   // omit or 0 for brand-new rows
+  purchasePrice:   number
+  qty:             number
+  productDetailId: number
+}
+
+export interface UpdatePurchaseRequest {
+  id:           number
+  purchaseDate: string   // "YYYY-MM-DD"
+  vendorId:     number
+  storeId:      number
+  branchId:     number
+  note:         string
+  details:      UpdatePurchaseDetailRequest[]
+}

@@ -10,6 +10,9 @@ import { Modal, Input, Button, Toggle, MapPicker } from '@/components/shared'
 import type { SalonListItem } from '../types'
 import { useCreateSalonMutation, useUpdateSalonMutation } from '../services/salonApi'
 import { getApiError } from '@/services/apiHelpers'
+import { Controller } from 'react-hook-form'
+import DatePicker from '@/components/shared/DatePicker'
+import { useParams, useNavigate } from 'react-router-dom'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const baseSchema = z.object({
@@ -33,6 +36,7 @@ const baseSchema = z.object({
 const createSchema = baseSchema.extend({
   ownerMobile: z.string().min(1, 'Owner mobile is required'),
   ownerPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  startingDate: z.string().min(1, 'Starting date is required'),
 })
 
 type CreateFormValues = z.infer<typeof createSchema>
@@ -47,6 +51,7 @@ interface SalonFormModalProps {
 export default function SalonFormModal({ open, onClose, salon }: SalonFormModalProps) {
   const { t } = useTranslation()
   const isEdit = Boolean(salon)
+  const { id } = useParams<{ id: string }>()
 
   const [createSalon, { isLoading: isCreating }] = useCreateSalonMutation()
   const [updateSalon, { isLoading: isUpdating }] = useUpdateSalonMutation()
@@ -60,6 +65,7 @@ export default function SalonFormModal({ open, onClose, salon }: SalonFormModalP
     reset,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<CreateFormValues>({
     resolver: zodResolver(schema as typeof createSchema),
@@ -70,9 +76,9 @@ export default function SalonFormModal({ open, onClose, salon }: SalonFormModalP
       ownerMobile: '', ownerPassword: '',
       hijabSection: false, childrenNotAllowed: false,
       menWorker: false, isTrusted: false, isVerify: false,
+      startingDate: '',
     },
   })
-
   useEffect(() => {
     if (open) {
       reset(
@@ -83,11 +89,12 @@ export default function SalonFormModal({ open, onClose, salon }: SalonFormModalP
               ownerNationalId: salon.ownerNationalId, taxCardNo: salon.taxCardNo,
               commertialRecordNo: salon.commertialRecordNo,
               mainOfficeAddress: salon.mainOfficeAddress,
-              lat: '', long: '',
+              lat: salon.lat , long: salon.long,
               hijabSection: salon.hijabSection,
               childrenNotAllowed: salon.childrenNotAllowed,
               menWorker: salon.menWorker, isTrusted: salon.isTrusted,
               isVerify: salon.isVerify,
+              startingDate: salon.startingDate?.slice(0, 10) ?? '',
             }
           : {
               nameAr: '', nameEn: '', telephone: '', ownerName: '',
@@ -96,6 +103,7 @@ export default function SalonFormModal({ open, onClose, salon }: SalonFormModalP
               ownerMobile: '', ownerPassword: '',
               hijabSection: false, childrenNotAllowed: false,
               menWorker: false, isTrusted: false, isVerify: false,
+              startingDate: '',
             },
       )
     }
@@ -104,7 +112,8 @@ export default function SalonFormModal({ open, onClose, salon }: SalonFormModalP
   const onSubmit = async (values: CreateFormValues) => {
     try {
       if (isEdit && salon) {
-        await updateSalon({ id: salon.id, ...values }).unwrap()
+    
+        await updateSalon({ id:Number(id), ...values }).unwrap()
         toast.success('Salon updated successfully')
       } else {
         await createSalon(values).unwrap()
@@ -176,6 +185,20 @@ toast.error(getApiError(error, t('common.error')))
               error={errors.commertialRecordNo?.message}
               required
             />
+            <Controller
+control={control}
+  name="startingDate"
+  render={({ field }) => (
+    <DatePicker
+      value={field.value}
+      onChange={field.onChange}
+      label="Starting Date"
+      placeholder="Select starting date"
+      error={(errors as any).startingDate?.message}
+      required
+    />
+  )}
+/>
           </div>
         </section>
 

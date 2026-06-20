@@ -93,7 +93,9 @@ export interface ProductFull {
   subCategoryId: number | null
   howToUse: string
   description: string
+  descriptionAr: string
   ingredients: string
+  ingredientsAr: string
   isVegan: boolean
   forChildren: boolean
   canTry: boolean
@@ -121,6 +123,7 @@ export interface ProductFull {
   brandName: string
   categoryName: string
   subCategoryIds: number[]
+  isTrending: boolean
 }
 
 // ── Dropdown types ──────────────────────────────────────────────────────────
@@ -153,7 +156,9 @@ export interface CreateProductRequest {
   productTypeIds: number[] 
   howToUse: string
   description: string
+  descriptionAr: string
   ingredients: string
+  ingredientsAr: string
   isVegan: boolean
   forChildren: boolean
   canTry: boolean
@@ -164,6 +169,7 @@ export interface CreateProductRequest {
   productTypeDetailIds: number[]
   isSensitiveSkin: boolean
   isActive: boolean
+  isTrending: boolean
   beautyCategoryIds: number[]
   concernIds: number[]
   interestIds: number[]

@@ -13,6 +13,7 @@ import {
   useUpdateConcernMutation,
   useGetBeautyCategoryDropdownQuery,
 } from '../services/concernApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   nameAr: z.string().min(1, 'Arabic name is required'),
@@ -81,9 +82,9 @@ export default function ConcernFormModal({ open, onClose, concern, onCreated }: 
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

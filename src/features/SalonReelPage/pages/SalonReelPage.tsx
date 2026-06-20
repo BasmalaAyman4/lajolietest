@@ -26,6 +26,7 @@ import {
 import ReelFormModal from '../components/ReelFormModal'
 import ReelVideoModal from '../components/ReelVideoModal'
 import ReelPreviewModal from '../components/ReelPreviewModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function SalonReelPage() {
   const { t } = useTranslation()
@@ -70,9 +71,9 @@ const [previewModal, setPreviewModal] = useState<{
     try {
       await deleteReel(deleteModal.id).unwrap()
       toast.success(t('reel.deleteSuccess', 'Reel deleted'))
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

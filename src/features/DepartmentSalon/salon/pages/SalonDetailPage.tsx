@@ -30,6 +30,8 @@ import type { SalonService, SalonUser, SalonBranch } from '../types'
 import SalonFormModal from '../components/SalonFormModal'
 import SalonImagesPanel from '../components/SalonImagesPanel'
 import SalonSpecialistsPanel from '../components/SalonSpecialistsPanel'
+import { getApiError } from '@/services/apiHelpers'
+import { useTranslation } from 'react-i18next'
 
 // ── Tab config ────────────────────────────────────────────────────────────────
 type Tab = 'overview' | 'images' | 'specialists' | 'branches' | 'services' | 'users'
@@ -73,39 +75,124 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
 // ── Services columns ──────────────────────────────────────────────────────────
 const SERVICE_COLUMNS: Column<SalonService>[] = [
   {
-    key: 'serviceNameEn',
-    label: 'Service (EN)',
-    sortable: true,
-    render: (row) => (
-      <span className="text-sm text-[var(--text-primary)]">{row.serviceNameEn}</span>
-    ),
+    key: 'imageUrl',
+    label: '',
+    render: (row) =>
+      row.imageUrl && row.imageUrl !== 'NULL' ? (
+        <img
+          src={row.imageUrl}
+          alt=""
+          className="w-10 h-10 rounded-[var(--radius)] object-cover border border-[var(--border)] shrink-0"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)]">
+          <HiPhotograph size={16} />
+        </div>
+      ),
   },
   {
-    key: 'serviceNameAr',
-    label: 'Service (AR)',
+    key: 'serviceNameEn',
+    label: 'Service',
+    sortable: true,
     render: (row) => (
-      <span className="text-sm text-[var(--text-secondary)]" dir="rtl">
-        {row.serviceNameAr}
-      </span>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-sm font-medium text-[var(--text-primary)] truncate">{row.serviceNameEn}</span>
+        <span className="text-xs text-[var(--text-muted)] truncate" dir="rtl">{row.serviceNameAr}</span>
+        {row.serviceCategoryNameEn && (
+          <span className="text-[10px] text-[var(--accent)] font-medium">{row.serviceCategoryNameEn}</span>
+        )}
+      </div>
     ),
   },
   {
     key: 'description',
     label: 'Description',
     render: (row) => (
-      <span className="text-xs text-[var(--text-muted)] max-w-[200px] truncate block">
+      <span className="text-xs text-[var(--text-muted)] max-w-[180px] truncate block">
         {row.description || '—'}
       </span>
+    ),
+  },
+  {
+    key: 'avverageDurationMinutes',
+    label: 'Duration',
+    render: (row) =>
+      row.avverageDurationMinutes > 0 ? (
+        <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">
+          {row.avverageDurationMinutes} min
+        </span>
+      ) : (
+        <span className="text-xs text-[var(--text-muted)]">—</span>
+      ),
+  },
+  {
+    key: 'isHomeService',
+    label: 'Where',
+    render: (row) => (
+      <div className="flex flex-col gap-0.5">
+        {row.isHomeService && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--accent-soft)] text-[var(--accent)] w-fit">
+            🏠 Home
+          </span>
+        )}
+        {row.isInSalonService && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--border)] text-[var(--text-secondary)] w-fit">
+            🏢 Salon
+          </span>
+        )}
+        {!row.isHomeService && !row.isInSalonService && (
+          <span className="text-xs text-[var(--text-muted)]">—</span>
+        )}
+      </div>
     ),
   },
   {
     key: 'price',
     label: 'Price',
     sortable: true,
+    render: (row) => {
+      if (row.isPriceRange && row.minPrice != null && row.maxPrice != null) {
+        return (
+          <div className="text-end">
+            <p className="text-sm font-medium text-[var(--text-primary)] whitespace-nowrap">
+              EGP {row.minPrice.toLocaleString()} – {row.maxPrice.toLocaleString()}
+            </p>
+            {row.priceNoteEn && (
+              <p className="text-[10px] text-[var(--text-muted)]">{row.priceNoteEn}</p>
+            )}
+          </div>
+        )
+      }
+      if (row.price != null) {
+        return (
+          <p className="text-sm font-medium text-[var(--text-primary)] text-end whitespace-nowrap">
+            EGP {row.price.toLocaleString()}
+          </p>
+        )
+      }
+      return <span className="text-xs text-[var(--text-muted)] block text-end">—</span>
+    },
+  },
+  {
+    key: 'isFeatured',
+    label: 'Flags',
     render: (row) => (
-      <span className="text-sm font-medium text-[var(--text-primary)] text-end block">
-        {row.price != null ? `EGP ${row.price.toLocaleString()}` : '—'}
-      </span>
+      <div className="flex flex-col gap-0.5">
+        {row.isFeatured && (
+          <span className="text-[10px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-fit">
+            ⭐ Featured
+          </span>
+        )}
+        {!row.isActive && (
+          <span className="text-[10px] font-medium text-[var(--danger)] bg-[var(--danger)]/10 px-1.5 py-0.5 rounded w-fit">
+            Inactive
+          </span>
+        )}
+        {row.isFeatured === false && row.isActive && (
+          <span className="text-xs text-[var(--text-muted)]">—</span>
+        )}
+      </div>
     ),
   },
 ]
@@ -167,11 +254,11 @@ export default function SalonDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const salonId = Number(id)
-
+const {t} = useTranslation()
   const { data: salon, isLoading, isError, refetch } = useGetSalonQuery(salonId)
   const [approveLogo]   = useApproveLogoMutation()
   const [approveBanner] = useApproveBannerMutation()
-
+console.log(salon)
   const [activeTab, setActiveTab] = useState<Tab>('images')
   const [editModal, setEditModal] = useState(false)
 
@@ -180,9 +267,9 @@ export default function SalonDetailPage() {
       await approveLogo(salonId).unwrap()
       toast.success('Logo approved')
       refetch()
-    } catch {
-      toast.error('Failed to approve logo')
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   if (isLoading) {

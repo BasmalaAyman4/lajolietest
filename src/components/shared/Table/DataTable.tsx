@@ -265,6 +265,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void
   /** Keys hidden by default. Columns prop order is preserved. */
   defaultHiddenKeys?: string[]
+  getRowHref?: (row: T) => string 
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -289,6 +290,7 @@ export default function DataTable<T extends object>({
   emptyMessage,
   onRowClick,
   defaultHiddenKeys = [],
+  getRowHref,
 }: DataTableProps<T>) {
   const { t } = useTranslation()
   const isServerSide = serverTotal !== undefined

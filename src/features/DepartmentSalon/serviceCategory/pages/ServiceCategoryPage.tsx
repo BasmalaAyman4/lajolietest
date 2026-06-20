@@ -11,6 +11,7 @@ import {
   useDeleteServiceCategoryMutation,
 } from '../services/serviceCategoryApi'
 import ServiceCategoryFormModal from '../components/ServiceCtegoryFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function ServiceCategoryPage() {
   const { t } = useTranslation()
@@ -34,9 +35,9 @@ export default function ServiceCategoryPage() {
     try {
       await deleteServiceCategory(deleteModal.id).unwrap()
       toast.success('Service category deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

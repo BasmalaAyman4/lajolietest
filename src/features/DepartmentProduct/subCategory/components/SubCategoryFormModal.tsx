@@ -16,6 +16,7 @@ import {
   useCreateSubCategoryMutation,
   useUpdateSubCategoryMutation,
 } from '../services/subCategoryApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -91,9 +92,9 @@ export default function SubCategoryFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

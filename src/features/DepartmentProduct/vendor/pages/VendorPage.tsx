@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { Vendor } from '../types'
 import { useGetVendorsQuery, useDeleteVendorMutation } from '../service/vendorApi'
 import VendorFormModal from '../components/VendorFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function VendorPage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function VendorPage() {
     try {
       await deleteVendor(deleteModal.id).unwrap()
       toast.success('Vendor deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

@@ -6,6 +6,7 @@ import type {
   SalonDetail,
   CreateSalonRequest,
   UpdateSalonRequest,
+  PendingPhotoApprovalsResponse,
 } from '../types'
 
 export const salonApi = api.injectEndpoints({
@@ -36,8 +37,8 @@ export const salonApi = api.injectEndpoints({
 
     // ── Update ────────────────────────────────────────────────────────────────
     updateSalon: builder.mutation<void, UpdateSalonRequest>({
-      query: ({ id, ...body }) => ({
-        url: `/api/admin/Salon/${id}`,
+      query: (body) => ({
+        url: `/api/admin/Salon`,
         method: 'PUT',
         body,
       }),
@@ -58,10 +59,24 @@ export const salonApi = api.injectEndpoints({
       invalidatesTags: (_r, _e, { salonId }) => [{ type: 'Salon', id: salonId }],
     }),
 
+    // ── Gallery images ────────────────────────────────────────────────────────
+    addSalonImages: builder.mutation<void, FormData>({
+      query: (form) => ({
+        url: '/api/admin/Salon/addSalonImages',
+        method: 'POST',
+        body: form,
+      }),
+      // Invalidate the specific salon detail so the gallery refreshes
+      invalidatesTags: (_r, _e, form) => {
+        const id = Number(form.get('SalonId'))
+        return [{ type: 'Salon', id }]
+      },
+    }),
+
     // ── Approve / Delete images ───────────────────────────────────────────────
     approveImage: builder.mutation<void, number>({
       query: (id) => ({ url: `/api/admin/Salon/approveImage/${id}`, method: 'PUT' }),
-      invalidatesTags: [{ type: 'Salon', id: 'LIST' }], // refresh list; page refetches detail
+      invalidatesTags: [{ type: 'Salon', id: 'LIST' }],
     }),
 
     approveLogo: builder.mutation<void, number>({
@@ -79,6 +94,37 @@ export const salonApi = api.injectEndpoints({
     deleteSalonImage: builder.mutation<void, number>({
       query: (id) => ({ url: `/api/admin/Salon/deleteSalonImage/${id}`, method: 'DELETE' }),
     }),
+// after deleteSalonImage:
+deleteSalonLogo: builder.mutation<void, number>({
+  query: (salonId) => ({
+    url: `/api/admin/Salon/deleteSalonLogo/${salonId}`,
+    method: 'DELETE',
+  }),
+}),
+
+deleteSalonBanner: builder.mutation<void, number>({
+  query: (salonId) => ({
+    url: `/api/admin/Salon/deleteSalonBanner/${salonId}`,
+    method: 'DELETE',
+  }),
+}),
+    // ── Pending approvals ─────────────────────────────────────────────────────
+    getPendingPhotoApprovals: builder.query<
+      PendingPhotoApprovalsResponse,
+      { pageNo: number; pageSize: number }
+    >({
+      query: ({ pageNo, pageSize }) =>
+        `/api/admin/Salon/pendingPhotoApprovals?pageNo=${pageNo}&pageSize=${pageSize}`,
+      providesTags: ['PendingApprovals'],
+    }),
+
+    approvePendingPhoto: builder.mutation<void, { entityId: number; section: string }>({
+      query: (body) => ({
+        url: '/api/admin/Salon/approvePendingPhoto',
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 })
@@ -89,9 +135,14 @@ export const {
   useCreateSalonMutation,
   useUpdateSalonMutation,
   useAddSalonLogoMutation,
+  useAddSalonImagesMutation,
   useApproveImageMutation,
   useApproveLogoMutation,
   useApproveBannerMutation,
   useApproveSpecialistImageMutation,
   useDeleteSalonImageMutation,
+  useGetPendingPhotoApprovalsQuery,
+  useApprovePendingPhotoMutation,
+   useDeleteSalonLogoMutation,
+  useDeleteSalonBannerMutation,
 } = salonApi

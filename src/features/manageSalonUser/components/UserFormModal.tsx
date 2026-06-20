@@ -17,6 +17,7 @@ import {
   useCreateSalonUserMutation,
   useUpdateSalonUserMutation,
 } from '../services/salonUserApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const baseSchema = z.object({
@@ -123,9 +124,9 @@ export default function UserFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────

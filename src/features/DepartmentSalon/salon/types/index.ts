@@ -15,6 +15,10 @@ export interface SalonListItem {
   menWorker: boolean
   isTrusted: boolean
   isVerify: boolean
+  startingDate: string,
+  long:string,
+  lat:string,
+  isPhoneVerified:boolean
 }
 
 export interface SalonUser {
@@ -45,16 +49,30 @@ export interface SalonBranch {
   isMainBranch: boolean
 }
 
+// types.ts
 export interface SalonService {
   salonServiceId: number
   serviceId: number
+  serviceCategoriesId: number | null
+  serviceCategoryNameEn: string | null
+  serviceCategoryNameAr: string | null
   serviceNameAr: string
   serviceNameEn: string
   description: string | null
   imageUrl: string | null
+  isPriceRange: boolean
   price: number | null
+  minPrice: number | null
+  maxPrice: number | null
+  priceNoteEn: string | null
+  priceNoteAr: string | null
+  avverageDurationMinutes: number
+  isHomeService: boolean
+  isInSalonService: boolean
+  isFeatured: boolean
+  isActive: boolean
+  sortOrder: number
 }
-
 export interface SalonSpecialist {
   id: number
   jobId: number
@@ -94,6 +112,7 @@ export interface CreateSalonRequest {
   long: string
   isTrusted: boolean
   isVerify: boolean
+  startingDate: string
 }
 
 export interface UpdateSalonRequest {
@@ -113,4 +132,24 @@ export interface UpdateSalonRequest {
   menWorker: boolean
   isTrusted: boolean
   isVerify: boolean
+}
+
+export interface PendingPhotoItem {
+  entityId: number
+  salonId: number
+  salonNameAr: string
+  salonNameEn: string
+  section: 'Gallery' | 'Logo' | 'Banner' | 'Specialist'
+  sectionItemId: number | null
+  sectionItemNameAr: string | null
+  sectionItemNameEn: string | null
+  imageUrl: string
+  isApproved: boolean | null
+}
+
+export interface PendingPhotoApprovalsResponse {
+  data: PendingPhotoItem[]
+  lastPageNo: number
+  totalCount: number
+  defaultImages: unknown[]
 }

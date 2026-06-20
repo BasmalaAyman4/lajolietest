@@ -18,6 +18,8 @@ import {
   useGetHeadColorDropdownQuery,
 } from '../services/productApi'
 import type { ProductColor, ProductFull, SizeDetailEntry } from '../types'
+import { getApiError } from '@/services/apiHelpers'
+import { useTranslation } from 'react-i18next'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const rgbToHex = (rgb: string | undefined): string => {
@@ -68,6 +70,7 @@ export default function ColorDetailsForm({
   addSizesToColor = null,
 }: ColorDetailsFormProps) {
   const isEdit = Boolean(initialData)
+  const { t } = useTranslation()
 
   // ── RTK mutations ──────────────────────────────────────────────────────────
   const [saveDetails, { isLoading: isSaving }] = useSaveProductDetailsMutation()
@@ -258,9 +261,9 @@ export default function ColorDetailsForm({
         : `Color ${isEdit ? 'updated' : 'saved'} successfully!`
 
       onSave(msg)
-    } catch {
-      toast.error('Something went wrong. Please try again.')
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   // ── Title ──────────────────────────────────────────────────────────────────

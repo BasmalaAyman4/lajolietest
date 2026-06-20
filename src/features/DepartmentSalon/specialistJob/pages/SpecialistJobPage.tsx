@@ -8,6 +8,7 @@ import { Button, ConfirmModal, DataTable, type Column } from '@/components/share
 import type { SpecialistJob } from '../types'
 import { useGetSpecialistJobsQuery, useDeleteSpecialistJobMutation } from '../services/specialistJobApi'
 import SpecialistJobFormModal from '../components/SpecialistJobFormModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function SpecialistJobPage() {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export default function SpecialistJobPage() {
     try {
       await deleteSpecialistJob(deleteModal.id).unwrap()
       toast.success('SpecialistJob deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    }catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                } finally {
       setDeleteModal({ open: false, id: null })
     }
   }

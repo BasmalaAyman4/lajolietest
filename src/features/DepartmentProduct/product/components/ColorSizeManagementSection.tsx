@@ -23,6 +23,8 @@ import {
   useUpdateProductDetailsMutation,
 } from '../services/productApi'
 import type { ProductFull, ProductColor, ProductDetail } from '../types'
+import { getApiError } from '@/services/apiHelpers'
+import { useTranslation } from 'react-i18next'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const rgbToHex = (rgb: string | undefined): string => {
@@ -52,6 +54,7 @@ export default function ColorSizeManagementSection({
   isDisappearColor = false,
   isDisappearSize = false,
 }: ColorSizeManagementSectionProps) {
+  const { t } = useTranslation()
   const [isAdding, setIsAdding] = useState(false)
   const [editingColor, setEditingColor] = useState<ProductColor | null>(null)
   const [editingDetail, setEditingDetail] = useState<ProductDetail | null>(null)
@@ -100,9 +103,9 @@ export default function ColorSizeManagementSection({
       toast.success('Prices updated successfully')
       closeAllForms()
       onUpdate()
-    } catch {
-      toast.error('Failed to update prices')
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   const handleStop = async () => {
@@ -112,9 +115,9 @@ export default function ColorSizeManagementSection({
       toast.success(`Detail ${dialog.isStoped ? 'activated' : 'stopped'} successfully`)
       setDialog({ open: false })
       onUpdate()
-    } catch {
-      toast.error('Failed to update detail status')
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   const handleDelete = async () => {
@@ -124,9 +127,9 @@ export default function ColorSizeManagementSection({
       toast.success('Detail deleted successfully')
       setDialog({ open: false })
       onUpdate()
-    } catch {
-      toast.error('Failed to delete detail')
-    }
+    } catch (error: any) {
+              toast.error(getApiError(error, t('common.error')))
+            }
   }
 
   const colors = product.colors ?? []

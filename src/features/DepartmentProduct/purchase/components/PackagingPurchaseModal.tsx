@@ -15,6 +15,7 @@ import { useSavePackagingPurchaseMutation } from '../services/purchaseApi'
 import PurchaseHeaderFields from './PurchaseHeaderFields'
 import PackagingDetailRow from './PackagingDetailRow'
 import type { PackagingPurchaseDetailRequest } from '../types'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   purchaseDate: z.string().min(1, 'Purchase date is required'),
@@ -78,9 +79,9 @@ export default function PackagingPurchaseModal({ open, onClose, onCreated }: Pac
       toast.success(t('common.success'))
       handleClose()
       onCreated?.(newId)
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   const grandTotal = rows.reduce((sum, r) => sum + r.purchasePrice * r.qty, 0)

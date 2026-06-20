@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button, Textarea } from '@/components/shared'
 import { useCreateSalonReelMutation } from '../services/salonReelApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -52,9 +53,9 @@ export default function ReelFormModal({ open, onClose, onCreated }: ReelFormModa
       toast.success(t('common.success'))
       onClose()
       onCreated(newId, values.title)
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   return (

@@ -14,6 +14,7 @@ import {
   useGetImagePhotoTypeDropdownQuery,
   useGetImageSectionDropdownQuery,
 } from '../services/defaultImageApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -111,9 +112,9 @@ export default function DefaultImageFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+                  toast.error(getApiError(error, t('common.error')))
+                }
   }
 
   return (

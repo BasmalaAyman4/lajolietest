@@ -78,6 +78,9 @@ export default function ProductDetailsPage() {
         <div>
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">Product Details</h1>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            Product ID : {product.id} 
+          </p>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             {product.enName} · <span dir="rtl">{product.name}</span>
           </p>
         </div>

@@ -9,13 +9,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { HiPlus, HiEye, HiTrash } from 'react-icons/hi'
+import { HiPlus, HiEye, HiTrash, HiPencil } from 'react-icons/hi'
 import { Button, ConfirmModal, DataTable, type Column } from '@/components/shared'
 import type { Purchase } from '../types'
 import { useGetPurchasesQuery, useDeletePurchaseMutation } from '../services/purchaseApi'
 import ProductPurchaseModal from '../components/ProductPurchaseModal'
 import PackagingPurchaseModal from '../components/PackagingPurchaseModal'
 import { toast } from 'sonner'
+import EditProductPurchaseModal from '../components/EditProductPurchaseModal'
+import { getApiError } from '@/services/apiHelpers'
 
 export default function PurchasePage() {
   const { t } = useTranslation()
@@ -27,7 +29,10 @@ export default function PurchasePage() {
   const [productModal, setProductModal] = useState(false)
   const [packagingModal, setPackagingModal] = useState(false)
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: number | null }>({ open: false, id: null })
-
+  const [editModal, setEditModal] = useState<{ open: boolean; id: number | null }>({
+    open: false,
+    id: null,
+  })
   const handleCreated = () => {
 
   }
@@ -36,9 +41,9 @@ export default function PurchasePage() {
     try {
       await deletePurchase(deleteModal.id).unwrap()
       toast.success('Purchase deleted')
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        } finally {
       setDeleteModal({ open: false, id: null })
     }
   }
@@ -103,7 +108,15 @@ export default function PurchasePage() {
       width: '56px',
       render: (row) => (
                 <div className="flex items-center justify-end gap-1">
-
+<button
+    type="button"
+    title="Edit purchase"
+    onClick={() => setEditModal({ open: true, id: row.id })}
+    className="w-8 h-8 rounded-lg flex items-center justify-center
+      text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+  >
+    <HiPencil size={15} />
+  </button>
         <button
           type="button"
           title="View details"
@@ -163,12 +176,14 @@ export default function PurchasePage() {
 
       <DataTable<Purchase>
         columns={columns}
+        tableKey='purchase'
         data={purchases}
         rowKey="id"
         loading={isLoading}
         searchKeys={['vendorName', 'storeName', 'branchName', 'note']}
         searchPlaceholder="Search by vendor, store, branch or note…"
         emptyMessage="No purchases found. Create your first purchase order!"
+        
       />
 
       <ProductPurchaseModal
@@ -190,6 +205,16 @@ export default function PurchasePage() {
         title="Delete Purchase"
         message="Are you sure you want to delete this purchase? This action cannot be undone."
       />
+      <EditProductPurchaseModal
+    open={editModal.open}
+    purchaseId={editModal.id ?? 0}
+    onClose={() => setEditModal({ open: false, id: null })}
+    onUpdated={() => {
+      // refetch() if you need an explicit refresh; RTK Query cache
+      // invalidation from updatePurchase usually handles it automatically.
+    }}
+  />
+
     </div>
   )
 }

@@ -10,6 +10,7 @@ import type { DropdownOption } from '@/types'
 import type { Collaborator } from '../types'
 import {
   useCreateCollaboratorMutation} from '../services/collaboratorApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -67,9 +68,9 @@ export default function CollaboratorFormModal({
         onClose()
         onCreated?.(newId)
       
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

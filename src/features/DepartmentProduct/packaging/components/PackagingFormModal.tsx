@@ -15,6 +15,7 @@ import {
   useCreatePackagingMutation,
   useUpdatePackagingMutation,
 } from '../services/packagingApi'
+import { getApiError } from '@/services/apiHelpers'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 const schema = z
@@ -106,9 +107,9 @@ export default function PackagingFormModal({
         onClose()
         onCreated?.(newId)
       }
-    } catch {
-      toast.error(t('common.error'))
-    }
+    }  catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (

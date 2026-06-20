@@ -148,6 +148,7 @@ export default function AreaPage() {
       {/* DataTable — search + filter + pagination built-in */}
       <DataTable<Area>
         columns={columns}
+        tableKey='areas'
         data={Areas}
         rowKey="id"
         loading={isLoading}

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Input, Button } from '@/components/shared'
 import type { Vendor } from '../types'
 import { useCreateVendorMutation, useUpdateVendorMutation } from '../service/vendorApi'
+import { getApiError } from '@/services/apiHelpers'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -57,9 +58,9 @@ export default function VendorFormModal({ open, onClose, vendor }: VendorFormMod
       }
       toast.success(t('common.success'))
       onClose()
-    } catch {
-      toast.error(t('common.error'))
-    }
+    } catch (error: any) {
+          toast.error(getApiError(error, t('common.error')))
+        }
   }
 
   return (
