@@ -52,6 +52,8 @@ import SendSmsPage from '@/features/DepartmentSalon/sendSms/pages/SendSmsPage'
 import OrderPage from '@/features/orders/pages/OrderPage'
 import StartupMediaPage from '@/features/DepartmentSupport/startupMedia/pages/StartupMediaPage'
 import PendingPhotoApprovalsPage from '@/features/DepartmentSalon/salon/pages/PendingPhotoApprovalsPage'
+import BannerPage from '@/features/Banner/pages/BannerPage'
+import BannerListPage from '@/features/Banner/pages/BannerListPage'
 // ── Guards ─────────────────────────────────────────────────────────────────────
 
 function PrivateRoute() {
@@ -130,7 +132,10 @@ const router = createBrowserRouter([
           { path: "send-sms", element: <SendSmsPage /> },
           { path: "orders", element: <OrderPage /> },
           {path:"startup-media",element:<StartupMediaPage/>},
-          {path:"pending-phaoto",element:<PendingPhotoApprovalsPage/>}
+          {path:"pending-phaoto",element:<PendingPhotoApprovalsPage/>},
+          {path:"banner",element:<BannerListPage/>},
+          {path:"banner/create",element:<BannerPage/>},
+          {path:"banner/edit/:id",element:<BannerPage/>}
         ],
       },
     ],

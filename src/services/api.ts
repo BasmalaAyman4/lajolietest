@@ -101,7 +101,8 @@ export const api = createApi({
     'TermsAndConditions',
     'Order',
     'StartupMedia',
-    'PendingApprovals'
+    'PendingApprovals',
+    'Banner'
   ],
   endpoints: () => ({}),
 })
