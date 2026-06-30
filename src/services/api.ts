@@ -102,7 +102,14 @@ export const api = createApi({
     'Order',
     'StartupMedia',
     'PendingApprovals',
-    'Banner'
+    'Banner',
+    'ContactUs',
+    'FqaType',
+    'Voucher',
+    'AdminDiscount',
+    'ShippingOffer',
+    'PointOption',
+    'ChairType'
   ],
   endpoints: () => ({}),
 })

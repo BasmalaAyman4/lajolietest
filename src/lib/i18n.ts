@@ -442,8 +442,45 @@ appointment: {
     loadError: "Failed to load appointments.",
     noAppointments: "No appointments found.",
     searchPlaceholder: "Search by client, service or status…"
+  },
+  contactUs: {
+    title: 'Contact Us Details',
+    description: 'Configure the contact channels shown in the user mobile app.',
+    editDetails: 'Edit Contact Details',
+    saveSuccess: 'Contact details updated successfully',
+    phone: 'Phone Number',
+    email: 'Email Address',
+    facebook: 'Facebook Page URL',
+    instagram: 'Instagram Profile URL',
+    telegram: 'Telegram Channel URL',
+    whatsApp: 'WhatsApp Number or Link',
+    twitter: 'Twitter/X Profile URL',
+    linkedin: 'LinkedIn Page URL',
+    notConfigured: 'Not Configured',
+    active: 'Active',
+    inactive: 'Inactive',
+  },
+  fqaType: {
+    title: "FAQ Types",
+    add: "Add New FAQ Type",
+    edit: "Edit FAQ Type",
+    deleteTitle: "Delete FAQ Type",
+    deleteMessage: "Are you sure you want to delete this FAQ Type?",
+    searchPlaceholder: "Search by type name…",
+    nameEn: "Name (English)",
+    nameAr: "Name (Arabic)",
+    image: "Image",
+    status: "Status",
+    description: "Description",
+    uploaded: "Uploaded",
+    editImage: "Edit Image",
+    deleteImage: "Delete Image",
+    selectNewImage: "Select New Image",
+    imageSizeWarning: "Image must be 1MB or smaller",
+    uploadFqaTypeImage: "Upload FAQ Type Image",
+    uploadFqaTypeImageFor: "Uploading image for FAQ Type",
+    noFqaTypes: "No FAQ Types found. Add your first FAQ Type!"
   }
-
 }
 
 // ─── Arabic translations ─────────────────────────────────────────────────────
@@ -890,9 +927,45 @@ appointment: {
     loadError: "فشل تحميل المواعيد.",
     noAppointments: "لم يتم العثور على مواعيد.",
     searchPlaceholder: "بحث بالعميل أو الخدمة أو الحالة…"
-  }
-
-
+  },
+  contactUs: {
+    title: 'تفاصيل اتصل بنا',
+    description: 'تهيئة قنوات الاتصال المعروضة في تطبيق الهاتف المحمول.',
+    editDetails: 'تعديل تفاصيل الاتصال',
+    saveSuccess: 'تم تحديث تفاصيل الاتصال بنجاح',
+    phone: 'رقم الهاتف',
+    email: 'البريد الإلكتروني',
+    facebook: 'رابط صفحة فيسبوك',
+    instagram: 'رابط حساب انستغرام',
+    telegram: 'رابط قناة تيليجرام',
+    whatsApp: 'رقم أو رابط واتساب',
+    twitter: 'رابط حساب تويتر/إكس',
+    linkedin: 'رابط صفحة لينكد إن',
+    notConfigured: 'غير مهيأ',
+    active: 'نشط',
+    inactive: 'غير نشط',
+  },
+   fqaType: {
+    title: "أنواع الأسئلة الشائعة",
+    add: "إضافة نوع سؤال شائع جديد",
+    edit: "تعديل نوع سؤال شائع",
+    deleteTitle: "حذف نوع سؤال شائع",
+    deleteMessage: "هل أنت متأكد من حذف نوع السؤال الشائع؟",
+    searchPlaceholder: "بحث باسم نوع السؤال…",
+    nameEn: "الاسم (إنجليزي)",
+    nameAr: "الاسم (عربي)",
+    image: "الصورة",
+    status: "الحالة",
+    description: "وصف",
+    uploaded: "تم الرفع",
+    editImage: "تعديل الصورة",
+    deleteImage: "حذف الصورة",
+    selectNewImage: "اختر صورة جديدة",
+    imageSizeWarning: "يجب أن تكون الصورة بحجم 1 ميغابايت كحد أقصى",
+    uploadFqaTypeImage: "تحميل صورة نوع السؤال",
+    uploadFqaTypeImageFor: "تحميل صورة لنوع السؤال",
+    noFqaTypes: "لا توجد أنواع أسئلة شائعة. أضف أول نوع سؤال شائع لك!"
+  },
 }
 
 i18n

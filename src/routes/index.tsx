@@ -34,6 +34,7 @@ import CityPage from '@/features/DepartmentLocation/city/pages/CityPage'
 import AreaPage from '@/features/DepartmentLocation/area/pages/AreaPage'
 import CollaboratorPage from '@/features/DepartmentCollaboration/Collaborator/pages/CollaboratorPage'
 import CollaborationVoucherPage from '@/features/DepartmentCollaboration/CollaboratorVoucher/pages/CollaborationVoucherPage.tsx'
+import VoucherPage from '@/features/DepartmentOffer/voucher/pages/VoucherPage'
 import SalonsPage from '@/features/DepartmentSalon/salon/pages/SalonsPage'
 import SalonDetailPage from '@/features/DepartmentSalon/salon/pages/SalonDetailPage'
 import ServiceCategoryPage from '@/features/DepartmentSalon/serviceCategory/pages/ServiceCategoryPage'
@@ -54,6 +55,12 @@ import StartupMediaPage from '@/features/DepartmentSupport/startupMedia/pages/St
 import PendingPhotoApprovalsPage from '@/features/DepartmentSalon/salon/pages/PendingPhotoApprovalsPage'
 import BannerPage from '@/features/Banner/pages/BannerPage'
 import BannerListPage from '@/features/Banner/pages/BannerListPage'
+import ContactUsPage from '@/features/DepartmentSupport/contactUs/pages/ContactUsPage'
+import FqaTypePage from '@/features/DepartmentSupport/fqaType/pages/FqaTypePage'
+import AdminDiscountPage from '@/features/DepartmentOffer/adminDiscount/pages/AdminDiscountPage'
+import ShippingOfferPage from '@/features/DepartmentOffer/shippingOffers/pages/ShippingOfferPage'
+import PointOptionsPage from '@/features/DepartmentOffer/pointOptions/pages/PointOptionsPage'
+import ChairTypePage from '@/features/DepartmentSalon/chairType/page/ChairTypePage'
 // ── Guards ─────────────────────────────────────────────────────────────────────
 
 function PrivateRoute() {
@@ -115,6 +122,7 @@ const router = createBrowserRouter([
           { path: "area", element: <AreaPage /> },
           { path: "collaborator", element: <CollaboratorPage /> },
           { path: "collaboration-vouchers", element: <CollaborationVoucherPage /> },
+          { path: "voucher", element: <VoucherPage /> },
           { path: "salons", element: <SalonsPage /> },
           { path: "salon-detail/:id", element: <SalonDetailPage /> },
           { path: "service-category", element: <ServiceCategoryPage /> },
@@ -135,7 +143,14 @@ const router = createBrowserRouter([
           {path:"pending-phaoto",element:<PendingPhotoApprovalsPage/>},
           {path:"banner",element:<BannerListPage/>},
           {path:"banner/create",element:<BannerPage/>},
-          {path:"banner/edit/:id",element:<BannerPage/>}
+          {path:"banner/edit/:id",element:<BannerPage/>},
+          {path:"contact-us",element:<ContactUsPage/>},
+          { path: 'fqa-types', element: <FqaTypePage /> },
+          {path:"discount",element:<AdminDiscountPage/>},
+          { path: "shipping-offer", element: <ShippingOfferPage /> },
+          { path: "point-options", element: <PointOptionsPage /> },
+          {path:"chair-type",element:<ChairTypePage/>},
+
         ],
       },
     ],

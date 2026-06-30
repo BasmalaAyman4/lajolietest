@@ -141,6 +141,8 @@ const NAV_ITEMS: NavItem[] = [
      { name: "Service Category", path: "/service-category" },
       { name: "Service Type", path: "/service-type" },
       { name: "Send SMS", path: "/send-sms" },
+      { name: "Chair Type", path: "/chair-type" },
+
     ],
   },
 
@@ -188,7 +190,7 @@ const NAV_ITEMS: NavItem[] = [
     name: "Support",
     icon: <MdSupportAgent />,
     subItems: [
-      { name: "FAQ Types", path: "/faqType" },
+      { name: "FAQ Types", path: "/fqa-types" },
       { name: "FAQ Details", path: "/faq" },
       { name: "Terms Types", path: "/terms-types" },
       { name: "Terms & Conditions", path: "/terms-and-conditions" },
