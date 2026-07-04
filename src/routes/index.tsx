@@ -61,6 +61,11 @@ import AdminDiscountPage from '@/features/DepartmentOffer/adminDiscount/pages/Ad
 import ShippingOfferPage from '@/features/DepartmentOffer/shippingOffers/pages/ShippingOfferPage'
 import PointOptionsPage from '@/features/DepartmentOffer/pointOptions/pages/PointOptionsPage'
 import ChairTypePage from '@/features/DepartmentSalon/chairType/page/ChairTypePage'
+import SuggestionRoutinePage from '@/features/DepartmentRoutine/SuggestionRoutine/pages/SuggestionRoutinePage'
+import AppOptionPage from '@/features/appOption/pages/AppOptionPage'
+import AffiliatePage from '@/features/DepartmentAffiliate/affiliate/pages/AffiliatePage'
+import AffiliateRequestPage from '@/features/DepartmentAffiliate/affiliateRequest/pages/AffiliateReqPage'
+import SellerPage from '@/features/DepartmentAffiliate/seller/pages/SellerPage'
 // ── Guards ─────────────────────────────────────────────────────────────────────
 
 function PrivateRoute() {
@@ -150,6 +155,11 @@ const router = createBrowserRouter([
           { path: "shipping-offer", element: <ShippingOfferPage /> },
           { path: "point-options", element: <PointOptionsPage /> },
           {path:"chair-type",element:<ChairTypePage/>},
+          {path:"suggestion-routine",element:<SuggestionRoutinePage/>},
+          {path:"app-options",element:<AppOptionPage/>},
+          { path: 'affiliates', element: <AffiliatePage /> },
+          { path: 'affiliate-request', element: <AffiliateRequestPage /> },
+          { path: 'sellers', element: <SellerPage /> },
 
         ],
       },

@@ -93,7 +93,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: <FaFileAlt />,
     subItems: [
       { name: "Routine Type", path: "/routine-types" },
-      { name: "Suggestion Routine", path: "/SuggestionRoutine" },
+      { name: "Suggestion Routine", path: "/suggestion-routine" },
     ],
   },
 
@@ -101,7 +101,7 @@ const NAV_ITEMS: NavItem[] = [
     id: "app-option",
     name: "App Option",
     icon: <FaFileAlt />,
-    path: "/app-option",
+    path: "/app-options",
   },
 
   {
@@ -179,8 +179,8 @@ const NAV_ITEMS: NavItem[] = [
     name: "Affiliate",
     icon: <FaUserTie />,
     subItems: [
-      { name: "Affiliate", path: "/affiliate" },
-      { name: "Seller", path: "/seller" },
+      { name: "Affiliate", path: "/affiliates" },
+      { name: "Seller", path: "/sellers" },
       { name: "Affiliate Request", path: "/affiliate-request" },
     ],
   },

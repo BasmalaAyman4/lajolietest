@@ -109,7 +109,12 @@ export const api = createApi({
     'AdminDiscount',
     'ShippingOffer',
     'PointOption',
-    'ChairType'
+    'ChairType',
+    'SuggestionRoutine',
+    'AppOption',
+    'AdminAffiliate',
+    'AdminAffiliateRequest',
+    'AdminSeller'
   ],
   endpoints: () => ({}),
 })
