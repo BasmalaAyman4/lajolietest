@@ -5,6 +5,7 @@ export interface ServiceType {
   imageUrl?: string
   codeKey: string
   serviceCategoryId: number
+  chairTypeName: string
   nameAr: string
   nameEn: string
   isActive: boolean
@@ -14,6 +15,7 @@ export interface ServiceType {
 export interface CreateServiceTypeRequest {
   codeKey: string
   serviceCategoryId: number
+  chairTypeId: number
   nameAr: string
   nameEn: string
   isActive: number
@@ -22,4 +24,9 @@ export interface CreateServiceTypeRequest {
 
 export interface UpdateServiceTypeRequest extends CreateServiceTypeRequest {
   id: number
+}
+
+export interface ChairTypeDropdownItem {
+  id: number
+  name: string
 }

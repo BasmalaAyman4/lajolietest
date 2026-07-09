@@ -12,6 +12,7 @@ import {
   useCreateServiceTypeMutation,
   useUpdateServiceTypeMutation,
   useGetServiceCategoryDropdownQuery,
+  useGetChairTypeDropdownQuery,
 } from '../services/serviceTypeApi'
 import { getApiError } from '@/services/apiHelpers'
 
@@ -23,6 +24,8 @@ const schema = z.object({
     .min(1, 'Code key is required')
     .regex(/^[A-Z_]+$/, 'Only capital letters and underscores allowed (e.g. ACNE_CONTROL)'),
   serviceCategoryId: z.coerce.number().min(1, 'Service category is required'),
+  chairTypeId: z.coerce.number().min(1, 'Chair type is required'),
+
   isActive: z.boolean().default(true),
   sortOrder: z.coerce.number().min(0).default(0),
 })
@@ -46,10 +49,11 @@ export default function ServiceTypeFormModal({ open, onClose, serviceType, onCre
 
   const { data: serviceCategories = [] } = useGetServiceCategoryDropdownQuery()
   const serviceCategoryOptions = serviceCategories.map((bc) => ({ value: bc.id, label: bc.name }))
-
+  const { data: chairTypes = [] } = useGetChairTypeDropdownQuery()
+  const chairTypeOptions = chairTypes.map((ct) => ({ value: ct.id, label: ct.name }))
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { nameAr: '', nameEn: '', codeKey: '', serviceCategoryId: 0, isActive: true, sortOrder: 0 },
+    defaultValues: { nameAr: '', nameEn: '', codeKey: '', serviceCategoryId: 0, chairTypeId: 0, isActive: true, sortOrder: 0 },
   })
 
   useEffect(() => {
@@ -61,10 +65,11 @@ export default function ServiceTypeFormModal({ open, onClose, serviceType, onCre
             nameEn: serviceType.nameEn,
             codeKey: serviceType.codeKey,
             serviceCategoryId: serviceType.serviceCategoryId,
+            chairTypeId: serviceType.chairTypeId,
             isActive: serviceType.isActive,
             sortOrder: serviceType.sortOrder,
           }
-          : { nameAr: '', nameEn: '', codeKey: '', serviceCategoryId: 0, isActive: true, sortOrder: 0 },
+          : { nameAr: '', nameEn: '', codeKey: '', serviceCategoryId: 0, chairTypeId: 0, isActive: true, sortOrder: 0 },
       )
     }
   }, [open, serviceType, reset])
@@ -121,6 +126,7 @@ toast.error(getApiError(error, t('common.error')))
           error={errors.codeKey?.message}
           required
         />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
         <Controller
           control={control}
@@ -136,6 +142,22 @@ toast.error(getApiError(error, t('common.error')))
             />
           )}
         />
+
+        <Controller
+          control={control}
+          name="chairTypeId"
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Chair Type"
+              options={chairTypeOptions}
+              placeholder="Select chair type"
+              error={errors.chairTypeId?.message}
+              required
+            />
+          )}
+        />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input {...register('sortOrder')} label="Sort Order" type="number" min={0} placeholder="0" error={errors.sortOrder?.message} />

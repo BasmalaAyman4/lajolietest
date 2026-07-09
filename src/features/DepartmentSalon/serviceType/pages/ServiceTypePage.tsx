@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { HiPlus, HiPencil, HiTrash, HiPhotograph } from 'react-icons/hi'
 import { Button, ConfirmModal, DataTable, type Column, StatusBadge } from '@/components/shared'
 import type { ServiceType } from '../types'
-import { useGetServiceTypesQuery, useDeleteServiceTypeMutation, useGetServiceCategoryDropdownQuery } from '../services/serviceTypeApi'
+import { useGetServiceTypesQuery, useDeleteServiceTypeMutation, useGetServiceCategoryDropdownQuery , useGetChairTypeDropdownQuery} from '../services/serviceTypeApi'
 import ServiceTypeFormModal from '../components/ServiceTypeFormModal'
 import ServiceTypeImageModal from '../components/ServiceTypeImageModal'
 import { getApiError } from '@/services/apiHelpers'
@@ -16,6 +16,7 @@ export default function ServiceTypePage() {
 
   const { data: serviceTypes = [], isLoading, isError } = useGetServiceTypesQuery()
   const { data: serviceCategories = [] } = useGetServiceCategoryDropdownQuery()
+  const { data: chairTypes = [] } = useGetChairTypeDropdownQuery()
   const [deleteServiceType, { isLoading: isDeleting }] = useDeleteServiceTypeMutation()
 
   const [formModal, setFormModal] = useState<{ open: boolean; serviceType?: ServiceType }>({ open: false })
@@ -65,6 +66,10 @@ export default function ServiceTypePage() {
       render: (row) => <span className="text-sm text-[var(--text-secondary)]">{scName(row.serviceCategoryId)}</span>,
     },
     {
+      key: 'chairTypeName', label: 'Chair Type',
+      render: (row) => <span className="text-sm text-[var(--text-secondary)]">{row.chairTypeName}</span>,
+    },
+    {
       key: 'sortOrder', label: 'Sort', align: 'center', width: '60px',
       render: (row) => <span className="text-sm text-[var(--text-muted)]">{row.sortOrder}</span>,
     },
@@ -105,7 +110,7 @@ export default function ServiceTypePage() {
         <Button onClick={() => setFormModal({ open: true })} leftIcon={<HiPlus size={15} />}>Add Service Type</Button>
       </div>
 
-      <DataTable<ServiceType> columns={columns} data={serviceTypes} rowKey="id" loading={isLoading}
+      <DataTable<ServiceType>  columns={columns} tableKey='servicetypesalon' data={serviceTypes} rowKey="id" loading={isLoading}
         searchKeys={['nameEn', 'nameAr', 'codeKey']} searchPlaceholder="Search by name or code key…" emptyMessage="No service types found." />
 
       <ServiceTypeFormModal open={formModal.open} onClose={() => setFormModal({ open: false })} serviceType={formModal.serviceType} onCreated={handleCreated} />

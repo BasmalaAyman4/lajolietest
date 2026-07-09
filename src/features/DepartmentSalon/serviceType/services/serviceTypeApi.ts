@@ -1,7 +1,7 @@
 // ─── ServiceType API ──────────────────────────────────────────────────────────────
 
 import { api } from '@/services/api'
-import type { ServiceType, CreateServiceTypeRequest, UpdateServiceTypeRequest } from '../types'
+import type { ServiceType, CreateServiceTypeRequest, UpdateServiceTypeRequest, ChairTypeDropdownItem } from '../types'
 
 export interface ServiceCategoryDropdownItem {
   id: number
@@ -44,6 +44,11 @@ export const serviceTypeApi = api.injectEndpoints({
       query: () => '/api/admin/BasicData/getServiceCategoryDropdown',
       providesTags: [{ type: 'ServiceCategory', id: 'LIST' }],
     }),
+    // ── GET chair type dropdown ────────────────────────────────────────
+    getChairTypeDropdown: builder.query<ChairTypeDropdownItem[], void>({
+      query: () => '/api/admin/BasicData/getChairTypeDropdown',
+      providesTags: [{ type: 'ChairType', id: 'LIST' }],
+    }),
   }),
   overrideExisting: false,
 })
@@ -55,4 +60,5 @@ export const {
   useDeleteServiceTypeMutation,
   useUploadServiceTypeImageMutation,
   useGetServiceCategoryDropdownQuery,
+  useGetChairTypeDropdownQuery,
 } = serviceTypeApi
