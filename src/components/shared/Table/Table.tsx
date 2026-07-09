@@ -146,15 +146,15 @@ export default function Table<T>({
 
   return (
     <div
-      className="overflow-x-auto w-full"
+      className="flex-1 min-h-0 overflow-auto w-full custom-scrollbar"
       ref={filterRef}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <table className="w-full text-sm border-collapse">
 
         {/* Head */}
-        <thead>
-          <tr className="bg-[var(--table-bg)]">
+        <thead className="sticky top-0 z-10">
+          <tr className="bg-[var(--table-bg)] shadow-sm">
             {columns.map((col) => {
               const colKey = String(col.key)
               const isFilterOpen = openFilterKey === colKey

@@ -43,6 +43,7 @@ const schema = z.object({
   ingredients: z.string().default(''),
   descriptionAr: z.string().default(''),
   ingredientsAr: z.string().default(''),
+  howToUseAr: z.string().default(''),
   isVegan: z.boolean().default(false),
   forChildren: z.boolean().default(false),
   canTry: z.boolean().default(false),
@@ -129,7 +130,7 @@ const productTypeDetails = useMemo(
       name: '', enName: '', brandId: 0, categoryId: 0,
       subCategoryId: [], productTypeIds: [],
       howToUse: '', description: '', ingredients: '',
-      descriptionAr: '', ingredientsAr: '',
+      descriptionAr: '', ingredientsAr: '', howToUseAr: '',
       isVegan: false, forChildren: false, canTry: false,
       isDisappearColor: false, isDisappearSize: false,
       hairTypes: [], skinTypes: [], productTypeDetailIds: [],
@@ -188,6 +189,7 @@ useEffect(() => {
         ingredients: product.ingredients ?? '',
         descriptionAr: product.descriptionAr ?? '',
         ingredientsAr: product.ingredientsAr ?? '',
+        howToUseAr: product.howToUseAr ?? '',
         isVegan: product.isVegan,
         forChildren: product.forChildren,
         canTry: product.canTry,
@@ -216,7 +218,7 @@ useEffect(() => {
       reset({
         name: '', enName: '', brandId: 0, categoryId: 0,
         subCategoryId: [], productTypeIds: [],
-        howToUse: '', description: '', ingredients: '',  descriptionAr: '', ingredientsAr: '',
+        howToUse: '', description: '', ingredients: '', howToUseAr: '', descriptionAr: '', ingredientsAr: '',
         isVegan: false, forChildren: false, canTry: false,
         isDisappearColor: false, isDisappearSize: false,
         hairTypes: [], skinTypes: [], productTypeDetailIds: [],
@@ -452,6 +454,9 @@ useEffect(() => {
         )} />
         <Controller control={control} name="howToUse" render={({ field }) => (
           <RichEditor label="How To Use" value={field.value} onChange={field.onChange} height={200} />
+        )} />
+        <Controller control={control} name="howToUseAr" render={({ field }) => (
+          <RichEditor label="How To Use Ar" value={field.value} onChange={field.onChange} height={200} />
         )} />
         <Controller control={control} name="ingredients" render={({ field }) => (
           <RichEditor label="Ingredients" value={field.value} onChange={field.onChange} height={200} />

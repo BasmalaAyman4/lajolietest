@@ -138,11 +138,11 @@ const NAV_ITEMS: NavItem[] = [
       { name: "Salon Discount", path: "/salon-discounts" },
       { name: "Specialist Job", path: "/specialistJob" },
       { name: "Pending Photo", path: "/pending-phaoto" },
-     { name: "Service Category", path: "/service-category" },
+      { name: "Service Category", path: "/service-category" },
       { name: "Service Type", path: "/service-type" },
       { name: "Send SMS", path: "/send-sms" },
       { name: "Chair Type", path: "/chair-type" },
-
+      { name: "Salon Schedule", path: "/salon-schedule" },
     ],
   },
 

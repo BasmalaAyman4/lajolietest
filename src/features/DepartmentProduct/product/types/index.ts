@@ -1,4 +1,8 @@
 // ─── Product Types ────────────────────────────────────────────────────────────
+// ── Product query/sort types ──────────────────────────────────────────────
+export type ProductSortKey = 'id' | 'name' | 'enname' | 'brand' | 'category' | 'price' | 'quantity'
+export type ProductSortDirection = 'asc' | 'desc'
+export type ProductStockStatus = 'inStock' | 'outOfStock'
 
 export interface HairType {
   id: number
@@ -92,6 +96,7 @@ export interface ProductFull {
   categoryId: number
   subCategoryId: number | null
   howToUse: string
+  howToUseAr: string
   description: string
   descriptionAr: string
   ingredients: string
@@ -155,6 +160,7 @@ export interface CreateProductRequest {
   subCategoryId: number[]
   productTypeIds: number[] 
   howToUse: string
+  howToUseAr: string
   description: string
   descriptionAr: string
   ingredients: string

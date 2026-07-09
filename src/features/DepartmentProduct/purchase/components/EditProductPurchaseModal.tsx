@@ -12,8 +12,8 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { HiPlus } from 'react-icons/hi'
-import { Modal, Button } from '@/components/shared'
-import { useUpdatePurchaseMutation, useGetPurchaseQuery } from '../services/purchaseApi'
+import { Modal, Button, ConfirmModal } from '@/components/shared'
+import { useUpdatePurchaseMutation, useGetPurchaseQuery, useDeletePurchaseDetailMutation } from '../services/purchaseApi'
 import PurchaseHeaderFields from './PurchaseHeaderFields'
 import PurchaseDetailRow, { type ProductDetailRow } from './PurchaseDetailRow'
 import { getApiError } from '@/services/apiHelpers'
@@ -54,6 +54,8 @@ export default function EditProductPurchaseModal({
 }: EditProductPurchaseModalProps) {
   const { t } = useTranslation()
   const [updatePurchase, { isLoading: isSaving }] = useUpdatePurchaseMutation()
+  const [deleteDetail, { isLoading: isDeleting }] = useDeletePurchaseDetailMutation()
+  const [rowToDelete, setRowToDelete] = useState<{ index: number, detailId: number } | null>(null)
 
   // Skip fetching when modal is closed to avoid stale requests
   const { data: purchase, isLoading: isFetching } = useGetPurchaseQuery(purchaseId, {
@@ -108,8 +110,26 @@ export default function EditProductPurchaseModal({
   const updateRow = (i: number, row: EditDetailRow) =>
     setRows((prev) => prev.map((r, idx) => (idx === i ? row : r)))
 
-  const removeRow = (i: number) =>
-    setRows((prev) => (prev.length === 1 ? [EMPTY_ROW()] : prev.filter((_, idx) => idx !== i)))
+  const removeRow = (i: number) => {
+    const row = rows[i]
+    if (row.detailId) {
+      setRowToDelete({ index: i, detailId: row.detailId })
+    } else {
+      setRows((prev) => (prev.length === 1 ? [EMPTY_ROW()] : prev.filter((_, idx) => idx !== i)))
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!rowToDelete) return
+    try {
+      await deleteDetail(rowToDelete.detailId).unwrap()
+      toast.success(t('common.success'))
+      setRows((prev) => (prev.length === 1 ? [EMPTY_ROW()] : prev.filter((_, idx) => idx !== rowToDelete.index)))
+      setRowToDelete(null)
+    } catch (error: any) {
+      toast.error(getApiError(error, t('common.error')))
+    }
+  }
 
   const onSubmit = async (values: FormValues) => {
     const invalid = rows.some((r) => !r.productDetailId || r.qty < 1 || r.purchasePrice < 0)
@@ -143,7 +163,8 @@ export default function EditProductPurchaseModal({
   )
 
   return (
-    <Modal
+    <>
+      <Modal
       open={open}
       onClose={handleClose}
       title={`Edit Purchase #${purchaseId}`}
@@ -201,7 +222,6 @@ export default function EditProductPurchaseModal({
                 value={row}
                 onChange={(r) => updateRow(i, { ...r, detailId: row.detailId })}
                 onRemove={() => removeRow(i)}
-                hideRemove
               />
             ))}
           </div>
@@ -223,6 +243,17 @@ export default function EditProductPurchaseModal({
 
         </div>
       )}
-    </Modal>
+      </Modal>
+
+      <ConfirmModal
+        open={!!rowToDelete}
+        onClose={() => setRowToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        loading={isDeleting}
+        title={t('common.confirmDeleteTitle', 'Confirm Delete')}
+        message={t('common.confirmDeleteMsg', 'Are you sure you want to delete this?')}
+        variant="delete"
+      />
+    </>
   )
 }

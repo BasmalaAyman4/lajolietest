@@ -41,6 +41,8 @@ import ServiceCategoryPage from '@/features/DepartmentSalon/serviceCategory/page
 import ServiceTypePage from '@/features/DepartmentSalon/serviceType/pages/ServiceTypePage'
 import ServiceCodePage from '@/features/DepartmentSalon/serviceCode/pages/ServiceCodePage'
 import SpecialistJobPage from '@/features/DepartmentSalon/specialistJob/pages/SpecialistJobPage'
+import SalonSchedulePage from '@/features/DepartmentSalon/salonSchedule/pages/SalonSchedulePage'
+import SalonScheduleDetailsPage from '@/features/DepartmentSalon/salonSchedule/pages/SalonScheduleDetailsPage'
 import SalonServiceDiscountPage from '@/features/DepartmentSalon/discount/pages/SalonServiceDiscountPage'
 import DiscountDetailsPage from '@/features/DepartmentSalon/discount/pages/DiscountDetailsPage'
 import HowToUse from '@/features/DepartmentSupport/howToUse/pages/HowToUsePage'
@@ -134,6 +136,8 @@ const router = createBrowserRouter([
           { path: "service-type", element: <ServiceTypePage /> },
           { path: "service-code", element: <ServiceCodePage /> },
           { path: "specialistJob", element: <SpecialistJobPage /> },
+          { path: "salon-schedule", element: <SalonSchedulePage /> },
+          { path: "salon-schedule/:salonId", element: <SalonScheduleDetailsPage /> },
           { path: "salon-discounts", element: <SalonServiceDiscountPage /> },
           { path: "salon-discounts/:id", element: <DiscountDetailsPage /> },
           { path: "how-to-use", element: <HowToUse /> },

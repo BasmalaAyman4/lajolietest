@@ -16,31 +16,45 @@ import type {
   UpdateProductDetailsRequest,
   SavePackagingRequest,
   ProductColorListItem,
+  ProductSortKey,
+  ProductSortDirection,
+  ProductStockStatus,
 } from '../types'
 
 export const productApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // ── GET paginated products ────────────────────────────────────────────────
-    getProducts: builder.query<
-      ProductListResponse,
-      { pageNo: number; pageSize: number; searchText?: string }
-    >({
-      query: ({ pageNo, pageSize, searchText }) => {
-        const params = new URLSearchParams({
-          pageNo: String(pageNo),
-          pageSize: String(pageSize),
-        })
-        if (searchText) params.set('searchText', searchText)
-        return `/api/admin/Product?${params.toString()}`
-      },
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.products.map(({ id }) => ({ type: 'Product' as const, id })),
-              { type: 'Product', id: 'LIST' },
-            ]
-          : [{ type: 'Product', id: 'LIST' }],
-    }),
+   // ── GET paginated products ────────────────────────────────────────────────
+getProducts: builder.query<
+  ProductListResponse,
+  {
+    pageNo: number
+    pageSize: number
+    searchText?: string
+    sortBy?: ProductSortKey
+    sortDirection?: ProductSortDirection
+    stockStatus?: ProductStockStatus
+  }
+>({
+  query: ({ pageNo, pageSize, searchText, sortBy, sortDirection, stockStatus }) => {
+    const params = new URLSearchParams({
+      pageNo: String(pageNo),
+      pageSize: String(pageSize),
+    })
+    if (searchText) params.set('searchText', searchText)
+    if (sortBy) params.set('sortBy', sortBy)
+    if (sortDirection) params.set('sortDirection', sortDirection)
+    if (stockStatus) params.set('stockStatus', stockStatus)
+    return `/api/admin/Product?${params.toString()}`
+  },
+  providesTags: (result) =>
+    result
+      ? [
+          ...result.products.map(({ id }) => ({ type: 'Product' as const, id })),
+          { type: 'Product', id: 'LIST' },
+        ]
+      : [{ type: 'Product', id: 'LIST' }],
+}),
 
     // ── GET single product by ID ──────────────────────────────────────────────
     getProduct: builder.query<ProductFull, number>({

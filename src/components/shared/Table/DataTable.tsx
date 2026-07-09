@@ -393,9 +393,9 @@ export default function DataTable<T extends object>({
     : processedData.slice((page - 1) * limit, page * limit)
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden">
       {/* ── Toolbar ────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+      <div className="flex  items-center gap-3 px-4 py-3">
         <div className="flex-1 min-w-[180px] max-w-xs">
           <Input
             value={localSearch}
