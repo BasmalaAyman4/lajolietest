@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { HiPlus, HiTrash } from 'react-icons/hi'
+import { HiPlus, HiTrash, HiPencil } from 'react-icons/hi'
 import { Modal, Input, Select, Textarea, Button, MultiSelect } from '@/components/shared'
 import type { DropdownOption } from '@/types'
 import {
@@ -164,6 +164,15 @@ export default function SuggestionRoutineFormModal({ open, onClose, routine, onC
     )
   }
 
+  const handleEditDetail = (index: number) => {
+    const detail = pendingDetails[index]
+    setRowProductType(detail.productTypeId)
+    fetchProductTypeDetails([detail.productTypeId])
+    setRowDetailIds(detail.productTypeDetailIds)
+    setRowDescription(detail.description)
+    handleRemoveDetail(index)
+  }
+
   const editDetailField = (index: number, field: 'description' | 'sortOrder', value: string) => {
     setPendingDetails((prev) =>
       prev.map((d, i) =>
@@ -200,11 +209,13 @@ export default function SuggestionRoutineFormModal({ open, onClose, routine, onC
         onClose()
       } else {
         const newId = await createRoutine(payload).unwrap()
+        console.log(newId)
         toast.success(t('common.success'))
         onClose()
         onCreated?.(newId)
       }
     } catch (error: any) {
+      console.log(error)
       toast.error(getApiError(error, t('common.error')))
     }
   }
@@ -384,7 +395,24 @@ export default function SuggestionRoutineFormModal({ open, onClose, routine, onC
                             className="w-16 text-center text-sm border border-[var(--border)] rounded-[var(--radius)] px-2 py-1 bg-[var(--bg-input,var(--bg-card))] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                           />
                         </td>
-                       
+                        <td className="p-2.5 text-center flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleEditDetail(idx)}
+                            className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1"
+                            title={t('common.edit', 'Edit')}
+                          >
+                            <HiPencil size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDetail(idx)}
+                            className="text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors p-1"
+                            title={t('common.delete', 'Delete')}
+                          >
+                            <HiTrash size={16} />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

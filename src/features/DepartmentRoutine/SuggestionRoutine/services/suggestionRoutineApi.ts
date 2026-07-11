@@ -44,7 +44,7 @@ export const suggestionRoutineApi = api.injectEndpoints({
     // backend exposes something different for editing a routine.
     updateSuggestionRoutine: builder.mutation<void, UpdateSuggestionRoutineRequest>({
       query: ({ id, ...body }) => ({
-        url: `/api/admin/SuggestionRoutine/${id}`,
+        url: `/api/admin/SuggestionRoutine`,
         method: 'PUT',
         body: { id, ...body },
       }),

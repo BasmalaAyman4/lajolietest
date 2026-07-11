@@ -47,13 +47,16 @@ export default function TermsAndConditionsFormModal({ open, onClose }: Props) {
   }, [open, reset])
 
   const onSubmit = async (values: FormValues) => {
+    console.log(values)
     try {
-      await create(values).unwrap()
+      const data = await create(values).unwrap()
+      console.log(data)
       toast.success(t('common.success'))
       onClose()
     } catch (error: any) {
-                  toast.error(getApiError(error, t('common.error')))
-                }
+      console.log(error)
+      toast.error(getApiError(error, t('common.error')))
+    }
   }
 
   return (
@@ -74,15 +77,25 @@ export default function TermsAndConditionsFormModal({ open, onClose }: Props) {
       }
     >
       <div className="flex flex-col gap-5">
-        <Select
-          {...register('termsTypeId', { valueAsNumber: true })}
-          label="Terms Type"
-          required
-          error={errors.termsTypeId?.message}
-          options={[
-            { label: 'Select type…', value: 0 },
-            ...typeOptions.map((o) => ({ label: o.name, value: o.id })),
-          ]}
+        <Controller
+          control={control}
+          name="termsTypeId"
+          render={({ field }) => (
+            <Select
+              name={field.name}
+              value={field.value}
+              onBlur={field.onBlur}
+              ref={field.ref}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+              label="Terms Type"
+              required
+              error={errors.termsTypeId?.message}
+              options={[
+                { label: 'Select type…', value: 0 },
+                ...typeOptions.map((o) => ({ label: o.name, value: o.id })),
+              ]}
+            />
+          )}
         />
 
         <Controller
